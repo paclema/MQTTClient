@@ -15,24 +15,33 @@
 #include <list>
 #include <string.h>
 
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/semphr.h"
-#include "freertos/queue.h"
+#ifdef ESP32
+	#include "freertos/FreeRTOS.h"
+	#include "freertos/task.h"
+	#include "freertos/semphr.h"
+	#include "freertos/queue.h"
 
-#include "lwip/sockets.h"
-#include "lwip/dns.h"
-#include "lwip/netdb.h"
+	#include "lwip/sockets.h"
+	#include "lwip/dns.h"
+	#include "lwip/netdb.h"
 
-#include "esp_wifi.h"
-#include "esp_system.h"
-#include "nvs_flash.h"
-#include "esp_event.h"
-#include <esp_event_base.h>
-#include "esp_netif.h"
-#include "esp_tls.h"
-#include "esp_log.h"
-#include "mqtt_client.h"
+	#include "esp_wifi.h"
+	#include "esp_system.h"
+	#include "nvs_flash.h"
+	#include "esp_event.h"
+	#include <esp_event_base.h>
+	#include "esp_netif.h"
+	#include "esp_tls.h"
+	#include "esp_log.h"
+	#include "mqtt_client.h"
+#elif defined(ESP8266)
+	#include <PubSubClient.h>
+	#include <WiFiClientSecure.h>
+	#include "WebSocketStreamClient.h"
+	#include <ESP8266WiFi.h>
+#else
+    #error "MQTTClient class only supports ESP32 or ESP8266 targets. Please report an issue at https://github.com/paclema/MQTTClient/issues to check for compatibility with other targets."
+#endif
 
 
 #define MQTT_TOPIC_MAX_SIZE_LIST 10
@@ -76,78 +85,36 @@ public:
 	~MQTTClient();
 
 	void setup();
-	bool isEnabled(void) { return enabled;}
+	void addCallback(MQTTClientCallback* callback) { callbacks.push_back(callback); }
+	MQTTClient*  *getMQTTClient(void) { return &instance; }
 
-	void addCallback(MQTTClientCallback* callback) {
-		callbacks.push_back(callback);
-	}
+	bool connected(){ return currentState == MQTT_CONNECTED; };
+	MQTTClientState state();
+	bool isEnabled(void) { return enabled;}
+	bool useWebsockets(void) { return enable_websockets; }
+	void setMQTTClientId(std::string client_id);
+
+	void addTopicSub(const char* topic, int qos);
+	void addTopicSub(const char* topic);
+	mqtt_client_topic_data getTopicSub(std::string topicName);
+	bool getTopicIsSubscribed(std::string topicName);
+  	std::string getBaseTopic(void) { return base_topic_pub; }
+
+	int publish(const char *topic, const char *data, int len, int qos, int retain);
+	int publish(const char *topic, const char *data);
 
 	void parseWebConfig(JsonObjectConst configObject);
 
-	int publish(const char *topic, const char *data, int len, int qos, int retain){
-		return esp_mqtt_client_publish(client, topic, data, len, qos, retain);
-	}
 
-	int publish(const char *topic, const char *data){
-		ESP_LOGI(TAG, "MQTT TX -> topic: %s, message: %s", topic, data);
-		return publish(topic, data, 0, 0, 0);
-	}
+	#ifdef ESP32
+	#elif defined(ESP8266)
+	  	void disconnect(void);
+		void reconnect(void);
+		void loop(void);
 
-	void addTopicSub(const char* topic, int qos){
-		mqtt_client_topic_data newTopic = {
-			.topic = topic,
-			.qos = qos,
-			.subs_msg_id = -1,
-			.subs_status = ANY
-		};
-
-		if (currentState == MQTT_CONNECTED){
-			newTopic.subs_msg_id = esp_mqtt_client_subscribe(client, newTopic.topic.c_str(), newTopic.qos);
-		};
-
-		subTopics.push_back(newTopic);
-
-	}
-
-	mqtt_client_topic_data getTopicSub(std::string topicName){
-		for (mqtt_client_topic_data t : subTopics) {
-			if (t.topic == topicName) return t;
-		}
-	}
-
-	bool getTopicIsSubscribed(std::string topicName){
-		for (mqtt_client_topic_data t : subTopics) {
-			if (t.topic == topicName) {
-				// ESP_LOGW(TAG, "FOUND topic %s with status=%d", t.topic.c_str(), t.subs_status);
-				if (t.subs_status == SUBSCRIBED) return true;
-				else return false;
-			}
-		}
-	}
-
-	void addTopicSub(const char* topic){
-		addTopicSub(topic, 0);
-	}
-
-	void setMQTTClientId(std::string client_id) {
-		id_name = client_id;
-		StaticJsonDocument<192> docSave;
-		docSave["id_name"] = this->id_name;
-		IWebConfig::saveWebConfig(docSave.as<JsonObject>());
-	}
-
-	bool connected(){
-		if (currentState == MQTT_CONNECTED)
-			return true;
-		else
-			return false;
-	}
-	int state(){
-		//TODO: create state machine with real client status
-		// using esp_mqtt_error_codes_t arriving on the 
-		// within MQTT_EVENT_ERROR type event MQTTClient::eventHandler
-		return currentState;
-	}
+		bool getReconnect(void) { return reconnect_mqtt; }
+		static void callbackMQTT(char* topic, byte* payload, unsigned int length);
+	#endif
 
 
 private:
@@ -171,7 +138,30 @@ private:
 	}
 
 	static MQTTClient* instance;
-	esp_mqtt_client_handle_t client;
+	#ifdef ESP32
+		esp_mqtt_client_handle_t client;
+
+		static void eventHandler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data);
+		static void log_error_if_nonzero(const char *message, int error_code);
+		std::string read_cert_file(const char* filepath);
+	#elif defined(ESP8266)
+		BearSSL::WiFiClientSecure wifiClientSecure;
+
+		BearSSL::X509List *rootCert;
+		BearSSL::X509List *clientCert;
+		BearSSL::PrivateKey *clientKey;
+
+		WiFiClient *wifiClient = nullptr;
+		WebSocketClient  *wsClient = nullptr;
+		WebSocketStreamClient *wsStreamClient = nullptr;
+		PubSubClient mqttClient;
+
+		unsigned long previousMqttReconnectionMillis = millis();
+		int mqttRetries = 0;
+
+		unsigned long currentLoopMillis = 0;
+		unsigned long connectionTime = millis();
+	#endif
 
 	bool enabled;
 	std::string server;
@@ -190,6 +180,7 @@ private:
 	std::string client_key_file_path;
 	char * client_cert_pem;
 	char * client_key_pem;
+	char * ca_cert_pem;
 	bool enable_websockets;
 	std::string websockets_path;
 	std::string broker_url;
@@ -206,11 +197,6 @@ private:
 	std::string bufOnDataTopic;
   	size_t bufOnDataSize = 0;
 	size_t bufOnDataReceivedSize = 0;
-
-
-	static void eventHandler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data);
-	static void log_error_if_nonzero(const char *message, int error_code);
-	std::string read_cert_file(const char* filepath);
 
 
 };

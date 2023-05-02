@@ -13,6 +13,7 @@ MQTTClient::~MQTTClient() {
     }
 }
 
+#ifdef ESP32
 void MQTTClient::setup() {
 
     esp_log_level_set("*", ESP_LOG_INFO);
@@ -299,6 +300,312 @@ void MQTTClient::log_error_if_nonzero(const char *message, int error_code)
     }
 }
 
+#elif defined(ESP8266)
+void MQTTClient::setup(void){
+    // SSL/TLS Certificates
+    // Load certificate file:
+    // But you must convert it to .der
+    // openssl x509 -in ./certs/IoLed_controller/client.crt -out ./certs/IoLed_controller/cert.der -outform DER
+    if (enable_certificates) {
+        // Cert File
+        File cert = LittleFS.open(client_cert_file_path.c_str(), "r");
+        if (!cert) Serial.println("Couldn't load client cert file");
+        else {
+            size_t certSize = cert.size();
+            client_cert_pem = (char *)malloc(certSize);
+            if (certSize != cert.readBytes(client_cert_pem, certSize)) {
+                Serial.println("Client cert load failed. Size mismatch");
+            } else {
+                Serial.println("Client cert loaded");
+                clientCert = new BearSSL::X509List(client_cert_pem);
+            }
+            free(client_cert_pem);
+            cert.close();
+        }
+
+        // Key File
+        File key = LittleFS.open(client_key_file_path.c_str(), "r");
+        if(!key) Serial.println("Couldn't load client key file");
+        else {
+            size_t keySize = key.size();
+            client_key_pem = (char *)malloc(keySize);
+            if (keySize != key.readBytes(client_key_pem, keySize)) {
+                Serial.println("Client key load failed. Size mismatch");
+            } else {
+                Serial.println("Client key loaded");
+                clientKey = new BearSSL::PrivateKey(client_key_pem);
+            }
+            free(client_key_pem);
+            key.close();
+        }
+
+        wifiClientSecure.setClientRSACert(clientCert, clientKey);
+
+        // CA File
+        File ca = LittleFS.open(ca_file_path.c_str(), "r");
+        if(!ca) Serial.println("Couldn't load CA cert file");
+        else {
+            size_t certSize = ca.size();
+            ca_cert_pem = (char *)malloc(certSize);
+            if (certSize != ca.readBytes(ca_cert_pem, certSize)) {
+                Serial.println("CA cert failed. Size mismatch");
+            } else {
+                Serial.println("CA cert loaded");
+                rootCert = new BearSSL::X509List(ca_cert_pem);
+                wifiClientSecure.setTrustAnchors(rootCert);
+            }
+            free(ca_cert_pem);
+            ca.close();
+        }
+    }
+
+    // WebSockets
+    if (enable_certificates){
+        if(enable_websockets){
+            wsClient = new WebSocketClient(wifiClientSecure, server.c_str(), port);
+            wsStreamClient = new WebSocketStreamClient(*wsClient, websockets_path.c_str());
+            mqttClient.setClient(*wsStreamClient);
+            Serial.printf("Configuring MQTT using certificates and websockets path: %s\n", websockets_path.c_str());
+        } else {
+            mqttClient.setClient(wifiClientSecure);
+            Serial.println("Configuring MQTT using certificates");
+            mqttClient.setServer(server.c_str(), port);
+        }
+    } else {
+        wifiClient = new WiFiClient();
+        if(enable_websockets){
+            wsClient = new WebSocketClient(*wifiClient, server.c_str(), port);
+            wsStreamClient = new WebSocketStreamClient(*wsClient, websockets_path.c_str());
+            mqttClient.setClient(*wsStreamClient);
+            Serial.println("Configuring MQTT using websockets");
+        } else {
+            mqttClient.setClient(*wifiClient);
+            Serial.println("Configuring MQTT using websockets without certificates");
+            mqttClient.setServer(server.c_str(), port);
+        }
+    }
+
+    // Configure MQTT event Callback
+    mqttClient.setCallback(MQTTClient::callbackMQTT);
+
+}
+
+void MQTTClient::callbackMQTT(char* topic, byte* payload, unsigned int length) {
+    // Serial.print("Message arrived [");
+    // Serial.print(topic);
+    // Serial.print("] ");
+
+    // char buff[length + 1];
+    // for (unsigned int i = 0; i < length; i++) {
+    //   //Serial.print((char)payload[i]);
+    //   buff[i] = (char)payload[i];
+    // }
+    // buff[length] = '\0';
+
+    // String message(buff);
+    // Serial.print(message);
+    // Serial.println();
+  
+    Serial.printf("[%lu] +++ MQTT received %s %.*s\n", millis(), topic, length, payload);
+
+    /*
+    if (strcmp(topic, "/lamp") == 0) {
+      //Lamp color request:
+      if (message.equals("red")){
+        Serial.println("Turning lamp to red");
+        //colorWipe(strip.Color(255, 0, 0), 10);
+      }
+      else if (strcmp(buff, "blue") == 0){
+          Serial.println("Turning lamp to blue");
+          //colorWipe(strip.Color(0, 0, 255), 10);
+      } else if (message.equals("green")){
+          Serial.println("Turning lamp to green");
+          //colorWipe(strip.Color(0, 255, 0), 10);
+      }
+      //client.publish((char*)"/lamp",(char*)"color changed");
+    }
+    */
+
+    Serial.print("Heap: "); Serial.println(ESP.getFreeHeap());
+
+}
+
+
+void MQTTClient::disconnect() {
+    // Close old possible conections
+    if (mqttClient.connected() ) mqttClient.disconnect();
+
+    // Delete client pointers
+    if (wsStreamClient){
+        wsStreamClient->flush();
+        wsStreamClient->stop();
+        delete wsStreamClient;
+        wsStreamClient = nullptr;
+    }
+    if (wsClient){
+        // wsClient->flush();   // Not implemented
+        wsClient->stop();
+        delete wsClient;
+        wsClient = nullptr;
+    }
+    if (wifiClient){
+        wifiClient->flush();
+        wifiClient->stop();
+        delete wifiClient;
+        wifiClient = nullptr;
+    }
+
+    //Renew the connection
+    MQTTClient::setup();
+}
+
+void MQTTClient::reconnect() {
+    // Loop until we're reconnected
+    if (currentLoopMillis - previousMqttReconnectionMillis > mqttReconnectionTime){
+        if (!mqttClient.connected() && ( mqttMaxRetries <= 0 || (mqttRetries <= mqttMaxRetries)) ) {
+            MQTTClient::disconnect();
+            
+            bool mqttConnected = false;
+            Serial.print("Attempting MQTT connection... ");
+            
+            std::string mqttWillTopic = base_topic_pub + "connected";
+            uint8_t mqttWillQoS = 2;
+            boolean mqttWillRetain = true;
+            std::string mqttWillMessage = "false";
+
+            if (enable_user_and_pass)
+                mqttConnected = mqttClient.connect(id_name.c_str(),
+                                                    user_name.c_str(),
+                                                    user_password.c_str(),
+                                                    mqttWillTopic.c_str(),
+                                                    mqttWillQoS,
+                                                    mqttWillRetain,
+                                                    mqttWillMessage.c_str());
+            else
+                mqttConnected = mqttClient.connect(id_name.c_str(),
+                                                    mqttWillTopic.c_str(),
+                                                    mqttWillQoS,
+                                                    mqttWillRetain,
+                                                    mqttWillMessage.c_str());
+
+            if (mqttConnected) {
+                Serial.println("connected");
+                // Once connected, publish an announcement...
+                std::string topic_connected_pub = base_topic_pub + "connected";
+                std::string msg_connected ="true";
+                mqttClient.publish(topic_connected_pub.c_str(), msg_connected.c_str(), true);
+                // ... and resubscribe
+                std::string base_topic_sub = base_topic_pub + "#";
+                mqttClient.subscribe(base_topic_sub.c_str());
+
+                u_int8_t sub_topicSize = MQTT_TOPIC_MAX_SIZE_LIST;
+                for (unsigned int i = 0; i < sub_topicSize ; i++){
+                    if (sub_topic[i] == "") break;
+                    Serial.printf("MQTT subscribing %d of %d topic %s: %s\n",
+                        i, sub_topicSize, sub_topic[i].c_str(),
+                        mqttClient.subscribe(sub_topic[i].c_str()) ? "ok" : "failed");
+                }
+
+                mqttRetries = 0;
+                Serial.printf("Time to connect MQTT client: %.2fs\n",(float)(millis() - connectionTime)/1000);
+
+            } else {
+                Serial.printf("failed, rc=%d try again in %ds: %d/%s\n", 
+                                mqttClient.state(), mqttReconnectionTime/1000, mqttRetries, 
+                                mqttMaxRetries <= 0 ? "-" : String(mqttMaxRetries));
+            }
+            previousMqttReconnectionMillis = millis();
+            mqttRetries++;
+        }
+    }
+}
+
+void MQTTClient::loop(void){
+  currentLoopMillis = millis();
+  if ( this->enabled) {
+    if ( !this->mqttClient.connected() &&
+          reconnect_mqtt && 
+          WiFi.status() == WL_CONNECTED ) {
+            connectionTime = currentLoopMillis;
+            MQTTClient::reconnect();
+      }
+
+    if (mqttClient.connected()) mqttClient.loop();
+  }
+
+}
+#endif
+
+MQTTClientState MQTTClient::state(){
+    //TODO: create state machine with real client status
+    // using esp_mqtt_error_codes_t arriving on the 
+    // within MQTT_EVENT_ERROR type event MQTTClient::eventHandler
+    return currentState;
+}
+
+void MQTTClient::setMQTTClientId(std::string client_id) {
+    id_name = client_id;
+    StaticJsonDocument<192> docSave;
+    docSave["id_name"] = this->id_name;
+    IWebConfig::saveWebConfig(docSave.as<JsonObject>());
+}
+
+void MQTTClient::addTopicSub(const char* topic, int qos) {
+    mqtt_client_topic_data newTopic = {
+        .topic = topic,
+        .qos = qos,
+        .subs_msg_id = -1,
+        .subs_status = ANY
+    };
+
+    if (currentState == MQTT_CONNECTED) {
+        newTopic.subs_msg_id = esp_mqtt_client_subscribe(client, newTopic.topic.c_str(), newTopic.qos);
+    };
+
+    subTopics.push_back(newTopic);
+}
+
+void MQTTClient::addTopicSub(const char* topic){
+    addTopicSub(topic, 0);
+}
+
+mqtt_client_topic_data MQTTClient::getTopicSub(std::string topicName) {
+    for (mqtt_client_topic_data t : subTopics) {
+        if (t.topic == topicName) return t;
+    }
+}
+
+bool MQTTClient::getTopicIsSubscribed(std::string topicName) {
+    for (mqtt_client_topic_data t : subTopics) {
+        if (t.topic == topicName) {
+            // ESP_LOGW(TAG, "FOUND topic %s with status=%d", t.topic.c_str(), t.subs_status);
+            if (t.subs_status == SUBSCRIBED) return true;
+            else return false;
+        }
+    }
+}
+
+int MQTTClient::publish(const char *topic, const char *data, int len, int qos, int retain) {
+    // ESP32 mqtt client return codes are followed for the return of this function
+    #ifdef ESP32
+        // mqtt client return -1 if the message was not published successfully,
+        // or the message id number if the message was published successfully.
+        // Also for QoS 0 messages, the return will be 0.
+        ESP_LOGI(TAG, "MQTT TX -> topic: %s, message: %s", topic, data);
+        return esp_mqtt_client_publish(client, topic, data, len, qos, retain);
+	#elif defined(ESP8266)
+        // PubSubClient publish return true if the message was published successfully, 
+        // or false if there was an error.
+
+        //WARNING: qos not used with PubSubClient!
+        return mqttClient.publish(topic, data, retain) ? 0 : -1;
+    #endif
+}
+
+int MQTTClient::publish(const char *topic, const char *data) {
+    return publish(topic, data, 0, 0, 0);
+}
+
 void MQTTClient::parseWebConfig(JsonObjectConst configObject) {
 
     // JsonObject received:
@@ -351,4 +658,4 @@ void MQTTClient::parseWebConfig(JsonObjectConst configObject) {
     this->base_topic_pub = "/" + id_name + "/" + std::to_string(chipId) + "/";
     // ESP_LOGE(TAG, "parseWebConfig MQTTClient enabled: %s every %dms and key: %s ", this->enabled? "true" : "false", this->metricsInterval, this->authKey.c_str());
 
-};
+}

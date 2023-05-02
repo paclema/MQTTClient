@@ -28,6 +28,24 @@
       "name": "ArduinoJson",
       "owner": "bblanchon",
       "version": "^6"
+    },
+    {
+      "name": "PubSubClient",
+      "owner": "knolleary",
+      "version": "^2.8",
+      "platforms": ["espressif8266"]
+    },
+    {
+      "name": "WebSocketStreamClient",
+      "owner": "paclema",
+      "version": "https://github.com/paclema/WebSocketStreamClient#development",
+      "platforms": ["espressif8266"]
+    },
+    {
+      "name": "ArduinoHttpClient",
+      "owner": "paclema",
+      "version": "https://github.com/paclema/ArduinoHttpClient#development",
+      "platforms": ["espressif8266"]
     }
   ],
   "platforms": [
