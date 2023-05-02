@@ -1,0 +1,114 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - v*.*.*
+
+jobs:
+
+  check-tag-version:
+    name: Check new lib version number
+    runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.check-latest-version.outputs.new_version }}
+      last_version: ${{ steps.check-latest-version.outputs.last_version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Check latest version
+        id: check-latest-version
+        run: |
+          NEW_VERSION=$(echo "$GITHUB_REF" | sed 's/^refs\/tags\/v//')
+          LAST_VERSION=$(jq -r '.version' library.json)
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "last_version=$LAST_VERSION" >> $GITHUB_OUTPUT
+          ./.github/scripts/compare_versions.sh $NEW_VERSION $LAST_VERSION
+
+  update-lib-files:
+    name: Update lib files
+    needs: check-tag-version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update library version
+        run: ./.github/scripts/update_lib_version.sh ${GITHUB_REF#refs/*/}
+        shell: bash
+
+  release:
+    name: Create release
+    needs: [update-lib-files, check-tag-version]
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: write
+    steps:
+      - name: Set variables
+        id: init
+        run: |
+          echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+          
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Force Fetch new tag
+        run: |
+          tag=${GITHUB_REF#refs/tags/}
+          git fetch --tags --force origin
+          git checkout "${tag}"
+
+      - name: Write release body
+        id: body
+        run: |
+          echo "package_name=$(jq -r '.name' library.json)" >> $GITHUB_OUTPUT
+          FILENAME=RELEASE.md
+          ./.github/scripts/get-release-body.sh ${{ steps.init.outputs.tag }} ${{ needs.check-tag-version.outputs.last_version }} CHANGELOG.md | tee $FILENAME
+          echo "filename=$FILENAME" >> $GITHUB_OUTPUT
+
+      - name: Create Arduino package
+        id: arduino
+        run: |
+          REPO_NAME=$(echo "$GITHUB_REPOSITORY" | cut -d/ -f 2)
+          FILENAME="$REPO_NAME"-${{ steps.init.outputs.tag }}.zip
+          ./.github/scripts/build-arduino-package.sh . "$FILENAME"
+          echo "filename=$FILENAME" >> $GITHUB_OUTPUT
+          
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          bodyFile: ${{ steps.body.outputs.filename }}
+          name: ${{ steps.body.outputs.package_name }} ${{ steps.init.outputs.tag }}
+          artifacts: ${{ steps.arduino.outputs.filename }}
+          # token: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-platformio:
+    name: Publish library to PlatformIO Registry
+    needs: update-lib-files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+
+      - name: Install PlatformIO
+        run: pip install -U platformio
+
+      - name: Publish library
+        env:
+          PLATFORMIO_AUTH_TOKEN: ${{ secrets.PLATFORMIO_AUTH_TOKEN }}
+        run: |
+          tag=${GITHUB_REF#refs/tags/}
+          git fetch --tags --force origin
+          git checkout "${tag}"
+          pio pkg publish --no-interactive
