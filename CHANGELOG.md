@@ -5,3 +5,4 @@ HEAD
 ----
 
 * first commit
+* Add platformio library.json

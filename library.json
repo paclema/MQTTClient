@@ -1,0 +1,31 @@
+{
+  "name": "MQTTClient",
+  "version": "0.0.0",
+  "description": "MQTT Client library that wrappers ESP-IDF mqtt client component into a C++ class",
+  "keywords": "mqtt, tls, websockets, esp32",
+  "authors": [
+    {
+      "name": "Pablo Clemente",
+      "maintainer": true,
+      "url": "https://github.com/paclema"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/paclema/MQTTClient"
+  },
+  "frameworks": [
+    "arduino",
+    "espidf"
+  ],
+  "dependencies": [
+    {
+      "name": "WebConfigServer",
+      "owner": "paclema",
+      "version": "^1.5.1"
+    }
+  ],
+  "platforms": [
+    "espressif32"
+  ]
+}
