@@ -113,6 +113,9 @@ public:
 		void loop(void);
 
 		bool getReconnect(void) { return reconnect_mqtt; }
+		bool setBufferSize(uint16_t size) { return mqttClient.setBufferSize(size); }
+		uint16_t getBufferSize(void) { return mqttClient.getBufferSize(); }
+
 		void callbackMQTT(char* topic, byte* payload, unsigned int length);
 	#endif
 
