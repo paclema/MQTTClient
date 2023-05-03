@@ -407,7 +407,7 @@ void MQTTClient::callbackMQTT(char* topic, byte* payload, unsigned int length) {
     // Serial.print(message);
     // Serial.println();
   
-    Serial.printf("[%lu] +++ MQTT received %s %.*s\n", millis(), topic, length, payload);
+    // Serial.printf("[%lu] +++ MQTT received %s %.*s\n", millis(), topic, length, payload);
 
     /*
     if (strcmp(topic, "/lamp") == 0) {
@@ -428,7 +428,7 @@ void MQTTClient::callbackMQTT(char* topic, byte* payload, unsigned int length) {
     */
 
     // Serial.print("Heap: "); Serial.println(ESP.getFreeHeap());
-    
+
     char* message = new char[length + 1];
     memcpy(message, payload, length);
     message[length] = '\0';
@@ -503,27 +503,34 @@ void MQTTClient::reconnect() {
                                                     mqttWillMessage.c_str());
 
             if (mqttConnected) {
+                this->currentState = MQTT_CONNECTED;
                 Serial.println("connected");
                 // Once connected, publish an announcement...
+                // TODO: publish a will message
                 std::string topic_connected_pub = base_topic_pub + "connected";
                 std::string msg_connected ="true";
                 mqttClient.publish(topic_connected_pub.c_str(), msg_connected.c_str(), true);
                 // ... and resubscribe
                 std::string base_topic_sub = base_topic_pub + "#";
-                mqttClient.subscribe(base_topic_sub.c_str());
+                // mqttClient.subscribe(base_topic_sub.c_str());
+                this->addTopicSub(base_topic_sub.c_str());
 
-                u_int8_t sub_topicSize = MQTT_TOPIC_MAX_SIZE_LIST;
-                for (unsigned int i = 0; i < sub_topicSize ; i++){
-                    if (sub_topic[i] == "") break;
-                    Serial.printf("MQTT subscribing %d of %d topic %s: %s\n",
-                        i, sub_topicSize, sub_topic[i].c_str(),
-                        mqttClient.subscribe(sub_topic[i].c_str()) ? "ok" : "failed");
+                for (mqtt_client_topic_data& t : this->subTopics) {
+                    t.subs_msg_id = this->topicId;
+                    this->topicId++;
+                    if(mqttClient.subscribe(t.topic.c_str(), t.qos)) {
+                        t.subs_status = SUBSCRIBED;
+                        this->onSubscribed(this);
+                    } else t.subs_status = ERROR;
+                    Serial.printf("Topic[%d]: %s status to %d\n", t.subs_msg_id, t.topic.c_str(), t.subs_status);
                 }
 
                 mqttRetries = 0;
                 Serial.printf("Time to connect MQTT client: %.2fs\n",(float)(millis() - connectionTime)/1000);
 
+                this->onConnected(this);
             } else {
+                this->currentState = MQTT_CONNECT_FAILED;
                 Serial.printf("failed, rc=%d try again in %ds: %d/%s\n", 
                                 mqttClient.state(), mqttReconnectionTime/1000, mqttRetries, 
                                 mqttMaxRetries <= 0 ? "-" : String(mqttMaxRetries));
@@ -573,7 +580,16 @@ void MQTTClient::addTopicSub(const char* topic, int qos) {
     };
 
     if (currentState == MQTT_CONNECTED) {
-        newTopic.subs_msg_id = esp_mqtt_client_subscribe(client, newTopic.topic.c_str(), newTopic.qos);
+        #ifdef ESP32
+            newTopic.subs_msg_id = esp_mqtt_client_subscribe(client, newTopic.topic.c_str(), newTopic.qos);
+        #elif defined(ESP8266)
+            newTopic.subs_msg_id = this->topicId;
+            this->topicId++;
+            if(mqttClient.subscribe(newTopic.topic.c_str(), newTopic.qos)) 
+                newTopic.subs_status = SUBSCRIBED;
+            else 
+                newTopic.subs_status = ERROR;
+        #endif
     };
 
     subTopics.push_back(newTopic);
@@ -646,13 +662,15 @@ void MQTTClient::parseWebConfig(JsonObjectConst configObject) {
 
     if (configObject["pub_topic"].size() > 0)
         for (unsigned int i = 0; i < configObject["pub_topic"].size(); i++)
-        this->sub_topic[i] = configObject["pub_topic"][i].as<std::string>();
+            this->sub_topic[i] = configObject["pub_topic"][i].as<std::string>();
     else
         this->sub_topic[0] = configObject["sub_topic"].as<std::string>();
 
     if (configObject["sub_topic"].size() > 0)
-        for (unsigned int i = 0; i < configObject["sub_topic"].size(); i++)
-        this->sub_topic[i] = configObject["sub_topic"][i].as<std::string>();
+        for (unsigned int i = 0; i < configObject["sub_topic"].size(); i++){
+            this->sub_topic[i] = configObject["sub_topic"][i].as<std::string>();
+            this->addTopicSub(this->sub_topic[i].c_str());
+        }
     else
         this->sub_topic[0] = configObject["sub_topic"].as<std::string>();
 

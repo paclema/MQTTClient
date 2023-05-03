@@ -158,6 +158,8 @@ private:
 
 		unsigned long previousMqttReconnectionMillis = millis();
 		int mqttRetries = 0;
+		
+		int topicId = 0;
 
 		unsigned long currentLoopMillis = 0;
 		unsigned long connectionTime = millis();
