@@ -632,6 +632,10 @@ int MQTTClient::publish(const char *topic, const char *data, int len, int qos, i
     #endif
 }
 
+int MQTTClient::publish(const char *topic, const char *data, int len) {
+    return publish(topic, data, len, 0, 0);
+}
+
 int MQTTClient::publish(const char *topic, const char *data) {
     return publish(topic, data, 0, 0, 0);
 }

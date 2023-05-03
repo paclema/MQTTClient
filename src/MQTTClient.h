@@ -101,6 +101,7 @@ public:
   	std::string getBaseTopic(void) { return base_topic_pub; }
 
 	int publish(const char *topic, const char *data, int len, int qos, int retain);
+	int publish(const char *topic, const char *data, int len);
 	int publish(const char *topic, const char *data);
 
 	void parseWebConfig(JsonObjectConst configObject);
