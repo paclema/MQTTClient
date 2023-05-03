@@ -113,7 +113,7 @@ public:
 		void loop(void);
 
 		bool getReconnect(void) { return reconnect_mqtt; }
-		static void callbackMQTT(char* topic, byte* payload, unsigned int length);
+		void callbackMQTT(char* topic, byte* payload, unsigned int length);
 	#endif
 
 

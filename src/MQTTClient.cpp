@@ -386,7 +386,8 @@ void MQTTClient::setup(void){
     }
 
     // Configure MQTT event Callback
-    mqttClient.setCallback(MQTTClient::callbackMQTT);
+    mqttClient.setCallback([this](char* topic, byte* payload, unsigned int length) { this->callbackMQTT(topic, payload, length); });
+
 
 }
 
@@ -426,7 +427,20 @@ void MQTTClient::callbackMQTT(char* topic, byte* payload, unsigned int length) {
     }
     */
 
-    Serial.print("Heap: "); Serial.println(ESP.getFreeHeap());
+    // Serial.print("Heap: "); Serial.println(ESP.getFreeHeap());
+    
+    char* message = new char[length + 1];
+    memcpy(message, payload, length);
+    message[length] = '\0';
+
+    mqtt_client_event_data data = {
+        .topic = std::string(topic),
+        .data = (const char*)message,
+        .data_len = length,
+    };
+
+    this->onDataReceived(this, data);
+    delete[] message;
 
 }
 
