@@ -181,10 +181,10 @@ void MQTTClient::eventHandler(void *handler_args, esp_event_base_t base, int32_t
             if(event->msg_id == t.subs_msg_id){
                 t.subs_status = SUBSCRIBED;
                 ESP_LOGD(TAG, "Topic[%d]: %s status to %d", t.subs_msg_id, t.topic.c_str(), t.subs_status);
+                thisClient->onSubscribed(thisClient, &t);
                 break;
             }
         }
-        thisClient->onSubscribed(thisClient);
         break;
     case MQTT_EVENT_UNSUBSCRIBED:
         ESP_LOGW(TAG, "MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
@@ -228,7 +228,7 @@ void MQTTClient::eventHandler(void *handler_args, esp_event_base_t base, int32_t
                     thisClient->bufOnDataReceivedSize += event->data_len;
                     ESP_LOGD(TAG, "MQTT_EVENT_DATA, data chunk length received %d. offset %d of %d total data length ", event->data_len, event->current_data_offset, event->total_data_len);
                     
-                    mqtt_client_event_data data = {
+                    mqtt_client_event_data *data = new mqtt_client_event_data{
                         .topic = thisClient->bufOnDataTopic,
                         .data = thisClient->bufOnData,
                         .data_len = thisClient->bufOnDataSize,
@@ -241,6 +241,7 @@ void MQTTClient::eventHandler(void *handler_args, esp_event_base_t base, int32_t
                     thisClient->bufOnData = nullptr;
                     thisClient->bufOnDataSize = 0;
                     thisClient->bufOnDataReceivedSize = 0;
+                    delete data;
 
                 } else {
                     ESP_LOGW(TAG, "MQTT_EVENT_DATA - DATA CHUNKED NEXT");
@@ -250,12 +251,13 @@ void MQTTClient::eventHandler(void *handler_args, esp_event_base_t base, int32_t
             } else {
                 ESP_LOGW(TAG, "MQTT_EVENT_DATA - DATA NOT CHUNKED");
 
-                mqtt_client_event_data data = {
+                mqtt_client_event_data *data = new mqtt_client_event_data{
                     .topic = std::string(event->topic, event->topic_len),
                     .data = event->data,
                     .data_len = event->data_len,
                 };
                 thisClient->onDataReceived(thisClient, data);
+                delete data;
             }
         }
         break;

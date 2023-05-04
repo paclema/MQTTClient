@@ -1,6 +1,7 @@
 #ifndef MQTTClientCallback_H
 #define MQTTClientCallback_H
 
+#include <iostream>
 #include <string.h>
 
 struct mqtt_client_event_data {

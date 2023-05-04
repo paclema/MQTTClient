@@ -15,3 +15,4 @@ HEAD
 * Add publish method with topic, data and data length
 * Created topic data struct and include it as a pointer in onSubscribed callback
 * Replace data as pointer for onDataReceived callback
+* Include data and topic structs as pointers in esp32 callbacks
