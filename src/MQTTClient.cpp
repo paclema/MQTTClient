@@ -433,7 +433,7 @@ void MQTTClient::callbackMQTT(char* topic, byte* payload, unsigned int length) {
     memcpy(message, payload, length);
     message[length] = '\0';
 
-    mqtt_client_event_data data = {
+    mqtt_client_event_data *data = new mqtt_client_event_data{
         .topic = std::string(topic),
         .data = (const char*)message,
         .data_len = length,
@@ -441,6 +441,7 @@ void MQTTClient::callbackMQTT(char* topic, byte* payload, unsigned int length) {
 
     this->onDataReceived(this, data);
     delete[] message;
+    delete data;
 
 }
 

@@ -63,21 +63,6 @@ typedef int8_t MQTTClientState;
 #define MQTT_CONNECTION_TIMEOUT           	((MQTTClientState)  -4)
 
 
-typedef enum mqtt_client_topic_status{
-    ANY = -1,
-    ERROR = 0,
-    SUBSCRIBED,
-    UNSUBSCRIBED,
-	SUBSCRIPTION_REQUESTED,
-};
-
-typedef struct mqtt_client_topic_data {
-    std::string topic;                      /*!< Topic associated with this event */
-    int qos;                            	/*!< qos of the messages associated with this event */
-	int subs_msg_id;
-	mqtt_client_topic_status subs_status;
-};
-
 class MQTTClient : public IWebConfig, private MQTTClientCallback {
 public:
 
@@ -129,7 +114,7 @@ private:
 		}
 	}
 
-	virtual void onDataReceived(MQTTClient* client, mqtt_client_event_data data) {
+	virtual void onDataReceived(MQTTClient* client, const mqtt_client_event_data *data) {
 		for (MQTTClientCallback* callback : callbacks) {
 			callback->onDataReceived(client, data);
 		}

@@ -14,3 +14,4 @@ HEAD
 * Add client buffer set/get for esp8266 target
 * Add publish method with topic, data and data length
 * Created topic data struct and include it as a pointer in onSubscribed callback
+* Replace data as pointer for onDataReceived callback
