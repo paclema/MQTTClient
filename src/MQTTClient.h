@@ -135,9 +135,9 @@ private:
 		}
 	}
 
-	virtual void onSubscribed(MQTTClient* client) {
+	virtual void onSubscribed(MQTTClient* client, const mqtt_client_topic_data *topic) {
 		for (MQTTClientCallback* callback : callbacks) {
-			callback->onSubscribed(client);
+			callback->onSubscribed(client, topic);
 		}
 	}
 

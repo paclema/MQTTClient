@@ -520,7 +520,7 @@ void MQTTClient::reconnect() {
                     this->topicId++;
                     if(mqttClient.subscribe(t.topic.c_str(), t.qos)) {
                         t.subs_status = SUBSCRIBED;
-                        this->onSubscribed(this);
+                        this->onSubscribed(this, &t);
                     } else t.subs_status = ERROR;
                     Serial.printf("Topic[%d]: %s status to %d\n", t.subs_msg_id, t.topic.c_str(), t.subs_status);
                 }

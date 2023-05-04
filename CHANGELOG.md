@@ -13,3 +13,4 @@ HEAD
 * Integrate addTopicSub method for esp8266. Handle connection state and topic subscription on connection
 * Add client buffer set/get for esp8266 target
 * Add publish method with topic, data and data length
+* Created topic data struct and include it as a pointer in onSubscribed callback
