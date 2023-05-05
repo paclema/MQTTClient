@@ -18,3 +18,4 @@ HEAD
 * Include data and topic structs as pointers in esp32 callbacks
 * Fix pub_topic typo in MQTTClient::parseWebConfig method
 * Add Readme basic info
+* Create basic_class_with_mqtt example

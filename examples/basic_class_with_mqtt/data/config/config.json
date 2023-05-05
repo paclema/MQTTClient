@@ -1,0 +1,103 @@
+{
+  "network": {
+    "AP_SSID": "iotdevice",
+    "AP_password": "iotdevice",
+    "AP_channel": 6,
+    "AP_SSID_hidden": false,
+    "AP_max_connection": 4,
+    "WiFi_SSID": "wifissid",
+    "WiFi_password": "wifipass",
+    "ip_address": "192.168.1.2",
+    "subnet": "255.255.255.0",
+    "dns_Server": "192.168.1.1",
+    "hostname": "iotdevice",
+    "enable_NAT": false
+  },
+  "mqtt": {
+    "enabled": false,
+    "reconnect_mqtt": false,
+    "reconnect_retries": 10,
+    "reconnect_time_ms": 10000,
+    "server": "broker.ddns.net",
+    "port": 1883,
+    "id_name": "iot-button",
+    "enable_user_and_pass": true,
+    "user_name": "user_name",
+    "user_password": "user_password",
+    "enable_certificates": false,
+    "ca_file": "/certs/ca.crt",
+    "cert_file": "/certs/cert.der",
+    "key_file": "/certs/private.der",
+    "enable_websockets": false,
+    "websockets_path": "/",
+    "pub_topic": [
+      "/iot-button/feed"
+    ],
+    "sub_topic": [
+      "/iot-button/topi1",
+      "/iot-button/topi2",
+      "/iot-button/topi3"
+    ],
+    "task_stack_size": 7168
+  },
+  "services": {
+    "OTA": {
+      "enabled": true
+    },
+    "FTP": {
+      "enabled": true,
+      "user": "paclema",
+      "password": "paclema"
+    },
+    "WebSockets": {
+      "enabled": true,
+      "publish_time_ms": 100,
+      "port": 81
+    },
+    "deep_sleep": {
+      "enabled": false,
+      "mode": "WAKE_RF_DEFAULT",
+      "mode_options": [
+        "WAKE_RF_DEFAULT",
+        "WAKE_RF_DISABLED",
+        "WAKE_RFCAL",
+        "WAKE_NO_RFCAL"
+      ],
+      "sleep_time": 60,
+      "sleep_delay": 60
+    },
+    "light_sleep": {
+      "enabled": false,
+      "mode": "LIGHT_SLEEP_T",
+      "mode_options": [
+        "NONE_SLEEP_T",
+        "LIGHT_SLEEP_T"
+      ]
+    },
+    "ntp": {
+      "enabled": true,
+      "ntpServer": "pool.ntp.org",
+      "gmt_offset_sec": 0,
+      "daylight_offset_sec": 3600
+    }
+  },
+  "MyClass": {
+    "enabled": true,
+    "serverName": "myserver.com",
+    "port": 80,
+    "arrayString": [
+      "Hello",
+      "World!"
+    ]
+  },
+  "device": {
+    "track_restart_counter": true,
+    "loop_time_ms": 100,
+    "publish_time_ms":1500
+  },
+  "info": {
+    "restart_counter": 0,
+    "fw_version": "v0.1",
+    "repo": "github.com/paclema/iot_button"
+  }
+}
