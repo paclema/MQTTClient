@@ -370,7 +370,7 @@ void MQTTClient::setup(void){
             Serial.printf("Configuring MQTT using certificates and websockets path: %s\n", websockets_path.c_str());
         } else {
             mqttClient.setClient(wifiClientSecure);
-            Serial.println("Configuring MQTT using certificates");
+            Serial.println("Configuring MQTT using certificates without websockets");
             mqttClient.setServer(server.c_str(), port);
         }
     } else {
@@ -379,10 +379,10 @@ void MQTTClient::setup(void){
             wsClient = new WebSocketClient(*wifiClient, server.c_str(), port);
             wsStreamClient = new WebSocketStreamClient(*wsClient, websockets_path.c_str());
             mqttClient.setClient(*wsStreamClient);
-            Serial.println("Configuring MQTT using websockets");
+            Serial.println("Configuring MQTT using websockets without certificates");
         } else {
             mqttClient.setClient(*wifiClient);
-            Serial.println("Configuring MQTT using websockets without certificates");
+            Serial.println("Configuring MQTT without certificates or websockets");
             mqttClient.setServer(server.c_str(), port);
         }
     }

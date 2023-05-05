@@ -1,6 +1,11 @@
 MQTTClient: Changelog
 =====================
 
+HEAD
+----
+
+* Enhance MQTT connection type messages for esp8266
+
 v0.0.3 (2023-05-05)
 ------
 
