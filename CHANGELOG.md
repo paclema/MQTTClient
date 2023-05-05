@@ -1,8 +1,8 @@
 MQTTClient: Changelog
 =====================
 
-HEAD
-----
+v0.0.2 (2023-05-05)
+------
 
 * Fix PlatformIO badge release number. 
 * Change README.md to use LF
