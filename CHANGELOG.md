@@ -1,8 +1,8 @@
 MQTTClient: Changelog
 =====================
 
-HEAD
-----
+v0.0.1 (2023-05-05)
+------
 
 * Include back platformio example in library.json
 
