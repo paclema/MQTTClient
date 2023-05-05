@@ -23,3 +23,4 @@ HEAD
 * Add executable permissions to github Release action scripts
 * Fix compare_versions.sh script to compare an initial empty library version
 * Fix platformio library.json with correct example name and version
+* Remove example for platformio and data folder for release package

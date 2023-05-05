@@ -51,12 +51,5 @@
   "platforms": [
     "espressif32",
     "espressif8266"
-  ],
-  "examples": [
-    {
-      "name": "Basic_Class_with_MQTTClient",
-      "base": "examples/basic_class_with_mqtt",
-      "files": ["platformio.ini", "src/basic_class_with_mqtt.ino"]
-    }
   ]
 }

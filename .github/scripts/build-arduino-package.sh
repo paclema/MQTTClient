@@ -14,7 +14,6 @@ rm -f "$OUTPUT"
 7z a "$OUTPUT" \
 	-xr!.vs \
 	examples \
-	data \
 	src \
 	LICENSE \
 	CHANGELOG.md \
