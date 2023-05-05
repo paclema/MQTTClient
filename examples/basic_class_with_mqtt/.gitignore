@@ -1,0 +1,13 @@
+.pio
+.pioenvs
+.piolibdeps
+.clang_complete
+.gcc-flags.json
+
+
+data/.bak/certs
+
+data/certs/*
+!data/certs/README.md
+
+.vscode

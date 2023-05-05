@@ -2,7 +2,7 @@
   "name": "MQTTClient",
   "version": "0.0.0",
   "description": "MQTT Client library that wrappers ESP-IDF mqtt client component into a C++ class",
-  "keywords": "mqtt, tls, websockets, esp32",
+  "keywords": "mqtt, tls, websockets, esp32, esp8266, WebConfigServer",
   "authors": [
     {
       "name": "Pablo Clemente",
@@ -49,6 +49,14 @@
     }
   ],
   "platforms": [
-    "espressif32"
+    "espressif32",
+    "espressif8266"
+  ],
+  "examples": [
+    {
+      "name": "Basic Class with MQTTClient",
+      "base": "examples/basic_class_with_mqtt",
+      "files": ["platformio.ini", "src/basic_class_with_mqtt.ino"]
+    }
   ]
 }

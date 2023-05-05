@@ -19,3 +19,4 @@ HEAD
 * Fix pub_topic typo in MQTTClient::parseWebConfig method
 * Add Readme basic info
 * Create basic_class_with_mqtt example
+* Update platformio library,json with example and espressif8266 platform
