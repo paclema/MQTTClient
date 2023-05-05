@@ -1,8 +1,8 @@
 MQTTClient: Changelog
 =====================
 
-HEAD
-----
+v0.0.0 (2023-05-05)
+------
 
 * first commit
 * Add platformio library.json
