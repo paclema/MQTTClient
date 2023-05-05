@@ -20,3 +20,4 @@ HEAD
 * Add Readme basic info
 * Create basic_class_with_mqtt example
 * Update platformio library,json with example and espressif8266 platform
+* Add executable permissions to github Release action scripts
