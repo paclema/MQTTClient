@@ -1,8 +1,8 @@
 MQTTClient: Changelog
 =====================
 
-HEAD
-----
+v0.0.3 (2023-05-05)
+------
 
 * Remove temporary username/password with a more meaningful example
 

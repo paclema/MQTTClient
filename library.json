@@ -1,6 +1,6 @@
 {
   "name": "MQTTClient",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "MQTT Client library that wrappers ESP-IDF mqtt client component into a C++ class",
   "keywords": "mqtt, tls, websockets, esp32, esp8266, WebConfigServer",
   "authors": [
