@@ -10,9 +10,16 @@ function compare_versions {
   IFS='.' read -r -a v1_arr <<< "$v1"
   IFS='.' read -r -a v2_arr <<< "$v2"
 
+  # Check if it is the first version and last version is empty
+  if [[ -z "$LAST_VERSION" ]]; then
+    echo "New version: v$1   -   Latest version: empty"
+    exit 0
+  fi
+
   # Compare the major, minor, and patch components in order
   if [ ${v1_arr[0]} -gt ${v2_arr[0]} ]; then
     echo "New version: v$1   -   Latest version: v$2"
+    exit 0
   elif [ ${v1_arr[0]} -lt ${v2_arr[0]} ]; then
     echo "Error: The new version (v$1) is not greater than latest version (v$2)"
     exit 1
@@ -32,6 +39,7 @@ function compare_versions {
   fi
 }
 # Example usage
+#                     new     last
 # compare_versions "v2.0.0" "v1.7.7"
 # compare_versions "2.0.0" "1.7.7"
 compare_versions $1 $2

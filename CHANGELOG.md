@@ -21,3 +21,4 @@ HEAD
 * Create basic_class_with_mqtt example
 * Update platformio library,json with example and espressif8266 platform
 * Add executable permissions to github Release action scripts
+* Fix compare_versions.sh script to compare an initial empty library version
