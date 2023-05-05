@@ -669,9 +669,9 @@ void MQTTClient::parseWebConfig(JsonObjectConst configObject) {
 
     if (configObject["pub_topic"].size() > 0)
         for (unsigned int i = 0; i < configObject["pub_topic"].size(); i++)
-            this->sub_topic[i] = configObject["pub_topic"][i].as<std::string>();
+            this->pub_topic[i] = configObject["pub_topic"][i].as<std::string>();
     else
-        this->sub_topic[0] = configObject["sub_topic"].as<std::string>();
+        this->pub_topic[0] = configObject["pub_topic"].as<std::string>();
 
     if (configObject["sub_topic"].size() > 0)
         for (unsigned int i = 0; i < configObject["sub_topic"].size(); i++){

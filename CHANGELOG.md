@@ -16,3 +16,4 @@ HEAD
 * Created topic data struct and include it as a pointer in onSubscribed callback
 * Replace data as pointer for onDataReceived callback
 * Include data and topic structs as pointers in esp32 callbacks
+* Fix pub_topic typo in MQTTClient::parseWebConfig method
