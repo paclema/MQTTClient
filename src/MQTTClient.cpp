@@ -83,6 +83,9 @@ void MQTTClient::setup() {
         .set_null_client_id = false,
         .client_id = id_name.c_str(),
 
+        .username = this->enable_user_and_pass ? user_name.c_str() : NULL,
+        .password = this->enable_user_and_pass ? user_password.c_str() : NULL,
+
         .task_stack = task_stack_size,
 
         .client_cert_pem = this->enable_certificates ? (const char *)client_cert_pem : NULL,
