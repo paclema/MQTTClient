@@ -5,6 +5,7 @@ HEAD
 ----
 
 * Enhance MQTT connection type messages for esp8266
+* Use certificates configuration only if enable_certificates config is enabled fotr esp32
 
 v0.0.3 (2023-05-05)
 ------

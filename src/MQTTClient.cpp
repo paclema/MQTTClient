@@ -45,25 +45,27 @@ void MQTTClient::setup() {
     // openssl s_client -showcerts -connect dev.yourserver.io:1443 < /dev/null 2> /dev/null | openssl x509 -outform PEM > yourserver.pem 
     // but it will expire faster than the CA certificate.
 
-    esp_err_t errca = esp_tls_init_global_ca_store();
-    if (errca != ESP_OK) ESP_LOGE(TAG, "esp_tls_init_global_ca_store error : %d", errca);
+    if(this->enable_certificates){
+        esp_err_t errca = esp_tls_init_global_ca_store();
+        if (errca != ESP_OK) ESP_LOGE(TAG, "esp_tls_init_global_ca_store error : %d", errca);
 
 
-    std::string caCertFileStr = read_cert_file(ca_file_path.c_str());
-    errca = esp_tls_set_global_ca_store( (const unsigned char *) caCertFileStr.c_str(),
-                                         (unsigned int)caCertFileStr.length() + 1);
-    if (errca != ESP_OK) ESP_LOGE(TAG, "esp_tls_set_global_ca_store error : %d", errca);
+        std::string caCertFileStr = read_cert_file(ca_file_path.c_str());
+        errca = esp_tls_set_global_ca_store( (const unsigned char *) caCertFileStr.c_str(),
+                                            (unsigned int)caCertFileStr.length() + 1);
+        if (errca != ESP_OK) ESP_LOGE(TAG, "esp_tls_set_global_ca_store error : %d", errca);
 
 
-    std::string clientCertFileStr = read_cert_file(client_cert_file_path.c_str());
-    client_cert_pem = new(char[clientCertFileStr.length() + 1]);
-    strcpy((char *)client_cert_pem, (const char *)clientCertFileStr.c_str());
+        std::string clientCertFileStr = read_cert_file(client_cert_file_path.c_str());
+        client_cert_pem = new(char[clientCertFileStr.length() + 1]);
+        strcpy((char *)client_cert_pem, (const char *)clientCertFileStr.c_str());
 
-    std::string clientKeyFileStr = read_cert_file(client_key_file_path.c_str());
-    client_key_pem = new(char[clientKeyFileStr.length() + 1]);
-    strcpy((char *)client_key_pem, (const char *)clientKeyFileStr.c_str());
+        std::string clientKeyFileStr = read_cert_file(client_key_file_path.c_str());
+        client_key_pem = new(char[clientKeyFileStr.length() + 1]);
+        strcpy((char *)client_key_pem, (const char *)clientKeyFileStr.c_str());
+        
+    }
     
-
     std::string url_prefix;
     std::string url_sufix;
     if (enable_websockets) {
@@ -83,9 +85,10 @@ void MQTTClient::setup() {
 
         .task_stack = task_stack_size,
 
-        .client_cert_pem = (const char *)client_cert_pem,
-        .client_key_pem = (const char *)client_key_pem,
-        .use_global_ca_store = true,
+        .client_cert_pem = this->enable_certificates ? (const char *)client_cert_pem : NULL,
+        .client_key_pem = this->enable_certificates ? (const char *)client_key_pem : NULL,
+        .use_global_ca_store = this->enable_certificates
+
     };
 
 
@@ -370,7 +373,7 @@ void MQTTClient::setup(void){
             Serial.printf("Configuring MQTT using certificates and websockets path: %s\n", websockets_path.c_str());
         } else {
             mqttClient.setClient(wifiClientSecure);
-            Serial.println("Configuring MQTT using certificates without websockets");
+            Serial.println("Configuring MQTT using certificates");
             mqttClient.setServer(server.c_str(), port);
         }
     } else {
@@ -379,10 +382,10 @@ void MQTTClient::setup(void){
             wsClient = new WebSocketClient(*wifiClient, server.c_str(), port);
             wsStreamClient = new WebSocketStreamClient(*wsClient, websockets_path.c_str());
             mqttClient.setClient(*wsStreamClient);
-            Serial.println("Configuring MQTT using websockets without certificates");
+            Serial.println("Configuring MQTT using websockets");
         } else {
             mqttClient.setClient(*wifiClient);
-            Serial.println("Configuring MQTT without certificates or websockets");
+            Serial.println("Configuring MQTT using websockets without certificates");
             mqttClient.setServer(server.c_str(), port);
         }
     }
