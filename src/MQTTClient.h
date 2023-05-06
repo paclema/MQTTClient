@@ -6,7 +6,14 @@
 #include <LittleFS.h>
 #include <ArduinoJson.h>
 
+
+#ifndef IWebConfig_H
+#warning "MQTTClient depends on IWebConfig.h from paclema/WebConfigServer library and this library is missing"
+class IWebConfig;
+#else
 #include <IWebConfig.h>
+#endif
+
 #include <MQTTClientCallback.h>
 
 #include <stdio.h>

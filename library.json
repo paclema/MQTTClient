@@ -20,11 +20,6 @@
   ],
   "dependencies": [
     {
-      "name": "WebConfigServer",
-      "owner": "paclema",
-      "version": "^1.5.1"
-    },
-    {
       "name": "ArduinoJson",
       "owner": "bblanchon",
       "version": "^6"
