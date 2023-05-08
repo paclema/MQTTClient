@@ -8,6 +8,7 @@ HEAD
 * Use certificates configuration only if enable_certificates config is enabled fotr esp32
 * Use user and password configurations only if enable_user_and_pass config is enabled fotr esp32
 * Removed WebConfigServer dependency and catch IWebConfig use
+* Fix IWebConfig inheritance when WebConfigServer is not used
 
 v0.0.3 (2023-05-05)
 ------

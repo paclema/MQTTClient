@@ -8,10 +8,9 @@
 
 
 #ifndef IWebConfig_H
-#warning "MQTTClient depends on IWebConfig.h from paclema/WebConfigServer library and this library is missing"
-class IWebConfig;
+	#warning "MQTTClient depends on IWebConfig.h from paclema/WebConfigServer library and this library is missing"
 #else
-#include <IWebConfig.h>
+	#include <IWebConfig.h>
 #endif
 
 #include <MQTTClientCallback.h>
@@ -70,7 +69,11 @@ typedef int8_t MQTTClientState;
 #define MQTT_CONNECTION_TIMEOUT           	((MQTTClientState)  -4)
 
 
-class MQTTClient : public IWebConfig, private MQTTClientCallback {
+class MQTTClient : 
+#ifdef IWebConfig_H
+	public IWebConfig, 
+#endif
+	private MQTTClientCallback {
 public:
 
 	MQTTClient();
