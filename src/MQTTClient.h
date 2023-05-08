@@ -8,11 +8,11 @@
 
 
 #ifndef IWebConfig_H
-	#warning "MQTTClient depends on IWebConfig.h from paclema/WebConfigServer library and this library is missing"
+	#pragma message ( "MQTTClient depends on IWebConfig.h from paclema/WebConfigServer library and this library is missing" )
 #else
 	#include <IWebConfig.h>
+	#pragma message ( " MQTTClient using IWebConfig Interface included from WebConfigServer library." )
 #endif
-
 #include <MQTTClientCallback.h>
 
 #include <stdio.h>

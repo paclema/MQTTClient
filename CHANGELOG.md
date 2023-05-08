@@ -11,6 +11,7 @@ HEAD
 * Removed WebConfigServer dependency and catch IWebConfig use
 * Fix IWebConfig inheritance when WebConfigServer is not used
 * Merge branch 'fix_circular_dep'
+* Replace precompiled warning with mmessages
 
 v0.0.3 (2023-05-05)
 ------
