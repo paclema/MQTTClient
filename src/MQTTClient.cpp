@@ -57,11 +57,11 @@ void MQTTClient::setup() {
 
 
         std::string clientCertFileStr = read_cert_file(client_cert_file_path.c_str());
-        client_cert_pem = new(char[clientCertFileStr.length() + 1]);
+        client_cert_pem = new char[clientCertFileStr.length() + 1]();
         strcpy((char *)client_cert_pem, (const char *)clientCertFileStr.c_str());
 
         std::string clientKeyFileStr = read_cert_file(client_key_file_path.c_str());
-        client_key_pem = new(char[clientKeyFileStr.length() + 1]);
+        client_key_pem = new char[clientKeyFileStr.length() + 1]();
         strcpy((char *)client_key_pem, (const char *)clientKeyFileStr.c_str());
         
     }
@@ -622,6 +622,7 @@ bool MQTTClient::getTopicIsSubscribed(std::string topicName) {
             else return false;
         }
     }
+    return false;
 }
 
 int MQTTClient::publish(const char *topic, const char *data, int len, int qos, int retain) {
@@ -696,7 +697,7 @@ void MQTTClient::parseWebConfig(JsonObjectConst configObject) {
     // Serial.printf("ESP32 Chip model = %s Rev %d\n", ESP.getChipModel(), ESP.getChipRevision());
     // Serial.printf("This chip has %d cores\n", ESP.getChipCores());
     // Serial.print("Chip ID: "); Serial.println(chipId);
-    #else degined(ESP8266)
+    #elif defined(ESP8266)
         chipId = ESP.getChipId();
     #endif
 
