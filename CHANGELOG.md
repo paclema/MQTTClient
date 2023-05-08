@@ -1,8 +1,8 @@
 MQTTClient: Changelog
 =====================
 
-HEAD
-----
+v0.0.4 (2023-05-08)
+------
 
 * Enhance MQTT connection type messages for esp8266
 * Use certificates configuration only if enable_certificates config is enabled fotr esp32
