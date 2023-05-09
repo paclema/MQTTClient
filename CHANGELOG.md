@@ -1,6 +1,11 @@
 MQTTClient: Changelog
 =====================
 
+HEAD
+----
+
+* Remove unnecessary class instance
+
 v0.0.4 (2023-05-08)
 ------
 

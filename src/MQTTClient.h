@@ -81,7 +81,6 @@ public:
 
 	void setup();
 	void addCallback(MQTTClientCallback* callback) { callbacks.push_back(callback); }
-	MQTTClient*  *getMQTTClient(void) { return &instance; }
 
 	bool connected(){ return currentState == MQTT_CONNECTED; };
 	MQTTClientState state();
@@ -136,7 +135,6 @@ private:
 		}
 	}
 
-	static MQTTClient* instance;
 	#ifdef ESP32
 		esp_mqtt_client_handle_t client;
 
