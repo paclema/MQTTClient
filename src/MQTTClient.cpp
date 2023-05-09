@@ -650,12 +650,6 @@ MQTTClientState MQTTClient::state(){
 
 void MQTTClient::setMQTTClientId(std::string client_id) {
     id_name = client_id;
-
-    #ifdef IWebConfig_H
-        StaticJsonDocument<192> docSave;
-        docSave["id_name"] = this->id_name;
-        IWebConfig::saveWebConfig(docSave.as<JsonObject>());
-    #endif
 }
 
 void MQTTClient::addTopicSub(const char* topic, int qos) {
