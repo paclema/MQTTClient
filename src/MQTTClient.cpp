@@ -35,7 +35,7 @@ void MQTTClient::setConfig(JsonObjectConst config) {
     // this->websockets_path = configObject["websockets_path"] | "/";
     // this->task_stack_size = configObject["task_stack_size"] | (7*1024);
 
-    if(config.containsKey("enabled")) this->server = config["enabled"].as<bool>();
+    if(config.containsKey("enabled")) this->enabled = config["enabled"].as<bool>();
     if(config.containsKey("server")) this->server = config["server"].as<std::string>();
     if(config.containsKey("port")) this->port = config["port"].as<int>();
     if(config.containsKey("id_name")) this->id_name = config["id_name"].as<std::string>();

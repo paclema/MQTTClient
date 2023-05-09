@@ -1,6 +1,11 @@
 MQTTClient: Changelog
 =====================
 
+HEAD
+----
+
+* Fix typo on enabled config
+
 v0.0.6 (2023-05-09)
 ------
 
