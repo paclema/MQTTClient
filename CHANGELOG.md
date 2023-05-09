@@ -1,8 +1,8 @@
 MQTTClient: Changelog
 =====================
 
-HEAD
-----
+v0.0.8 (2023-05-09)
+------
 
 * Remove IWebConfig::saveWebConfig from setMQTTClientId
 
