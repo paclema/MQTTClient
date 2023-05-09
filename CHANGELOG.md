@@ -1,8 +1,8 @@
 MQTTClient: Changelog
 =====================
 
-HEAD
-----
+v0.0.5 (2023-05-09)
+------
 
 * Remove unnecessary class instance
 * Remove IWebConfig dependency and replace parseWebConfig with setConfig method
