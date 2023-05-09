@@ -1,8 +1,8 @@
 MQTTClient: Changelog
 =====================
 
-HEAD
-----
+v0.0.6 (2023-05-09)
+------
 
 * Fix json mqtt config object names
 
