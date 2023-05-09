@@ -70,7 +70,7 @@ public:
 	MQTTClient();
 	~MQTTClient();
 
-	void setup();
+	void setup(void);
 	void setConfig(JsonObjectConst config);
 	void addCallback(MQTTClientCallback* callback) { callbacks.push_back(callback); }
 

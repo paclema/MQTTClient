@@ -117,7 +117,7 @@ void MQTTClient::setConfig(JsonObjectConst config) {
 }
 
 #ifdef ESP32
-void MQTTClient::setup() {
+void MQTTClient::setup(void) {
 
     esp_log_level_set("*", ESP_LOG_INFO);
     esp_log_level_set("MQTT_CLIENT", ESP_LOG_VERBOSE);
