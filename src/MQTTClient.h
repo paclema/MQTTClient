@@ -3,16 +3,10 @@
 #pragma once
 
 #include <Arduino.h>
+
 #include <LittleFS.h>
 #include <ArduinoJson.h>
 
-
-#ifndef IWebConfig_H
-	#pragma message ( "MQTTClient depends on IWebConfig.h from paclema/WebConfigServer library and this library is missing" )
-#else
-	#include <IWebConfig.h>
-	#pragma message ( " MQTTClient using IWebConfig Interface included from WebConfigServer library." )
-#endif
 #include <MQTTClientCallback.h>
 
 #include <stdio.h>
@@ -70,9 +64,6 @@ typedef int8_t MQTTClientState;
 
 
 class MQTTClient : 
-#ifdef IWebConfig_H
-	public IWebConfig, 
-#endif
 	private MQTTClientCallback {
 public:
 
@@ -80,6 +71,7 @@ public:
 	~MQTTClient();
 
 	void setup();
+	void setConfig(JsonObjectConst config);
 	void addCallback(MQTTClientCallback* callback) { callbacks.push_back(callback); }
 
 	bool connected(){ return currentState == MQTT_CONNECTED; };
@@ -97,8 +89,6 @@ public:
 	int publish(const char *topic, const char *data, int len, int qos, int retain);
 	int publish(const char *topic, const char *data, int len);
 	int publish(const char *topic, const char *data);
-
-	void parseWebConfig(JsonObjectConst configObject);
 
 
 	#ifdef ESP32

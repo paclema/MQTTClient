@@ -5,6 +5,7 @@ HEAD
 ----
 
 * Remove unnecessary class instance
+* Remove IWebConfig dependency and replace parseWebConfig with setConfig method
 
 v0.0.4 (2023-05-08)
 ------

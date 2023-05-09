@@ -12,6 +12,109 @@ MQTTClient::~MQTTClient() {
         delete[] bufOnData;
     }
 }
+void MQTTClient::setConfig(JsonObjectConst config) {
+    // JsonObject received:
+    // serializeJsonPretty(configObject, Serial);
+
+    // // MQTTClient IWebConfig object:
+    // this->enabled = configObject["enabled"] | false;
+    // this->server = configObject["server"] | "server_address";
+    // this->port = configObject["port"] | 8888;
+    // this->id_name = configObject["id_name"] | "iotdevice";
+    // this->reconnect_mqtt = configObject["reconnect_mqtt"] | false;
+    // this->mqttMaxRetries = configObject["reconnect_retries"] | 10;
+    // this->mqttReconnectionTime = configObject["reconnect_time_ms"] | 10000;
+    // this->enable_user_and_pass = configObject["enable_user_and_pass"] | false;
+    // this->user_name = configObject["user_name"] | "user_name";
+    // this->user_password = configObject["user_password"] | "user_password";
+    // this->enable_certificates = configObject["enable_certificates"] | false;
+    // this->ca_file_path = configObject["ca_file"] | "certs/ca.crt";
+    // this->client_cert_file_path = configObject["cert_file"] | "certs/client.crt";
+    // this->client_key_file_path = configObject["key_file"] | "certs/client.key";
+    // this->enable_websockets = configObject["enable_websockets"] | false;
+    // this->websockets_path = configObject["websockets_path"] | "/";
+    // this->task_stack_size = configObject["task_stack_size"] | (7*1024);
+
+    // if (configObject["pub_topic"].size() > 0)
+    //     for (unsigned int i = 0; i < configObject["pub_topic"].size(); i++)
+    //         this->pub_topic[i] = configObject["pub_topic"][i].as<std::string>();
+    // else
+    //     this->pub_topic[0] = configObject["pub_topic"].as<std::string>();
+
+    // if (configObject["sub_topic"].size() > 0)
+    //     for (unsigned int i = 0; i < configObject["sub_topic"].size(); i++){
+    //         this->sub_topic[i] = configObject["sub_topic"][i].as<std::string>();
+    //         this->addTopicSub(this->sub_topic[i].c_str());
+    //     }
+    // else
+    //     this->sub_topic[0] = configObject["sub_topic"].as<std::string>();
+
+
+    // uint32_t chipId = 0;
+    // #ifdef ESP32
+    // for(int i=0; i<17; i=i+8) {
+    //     chipId |= ((ESP.getEfuseMac() >> (40 - i)) & 0xff) << i;
+    //     }
+    // // Serial.printf("ESP32 Chip model = %s Rev %d\n", ESP.getChipModel(), ESP.getChipRevision());
+    // // Serial.printf("This chip has %d cores\n", ESP.getChipCores());
+    // // Serial.print("Chip ID: "); Serial.println(chipId);
+    // #elif defined(ESP8266)
+    //     chipId = ESP.getChipId();
+    // #endif
+
+    // this->base_topic_pub = "/" + id_name + "/" + std::to_string(chipId) + "/";
+    // // ESP_LOGE(TAG, "parseWebConfig MQTTClient enabled: %s every %dms and key: %s ", this->enabled? "true" : "false", this->metricsInterval, this->authKey.c_str());
+
+    if(config.containsKey("enabled")) this->server = config["enabled"].as<bool>();
+    if(config.containsKey("server")) this->server = config["server"].as<std::string>();
+    if(config.containsKey("port")) this->port = config["port"].as<int>();
+    if(config.containsKey("id_name")) this->id_name = config["id_name"].as<std::string>();
+    if(config.containsKey("reconnect_mqtt")) this->reconnect_mqtt = config["reconnect_mqtt"].as<bool>();
+    if(config.containsKey("mqttMaxRetries")) this->mqttMaxRetries = config["mqttMaxRetries"].as<int>();
+    if(config.containsKey("mqttReconnectionTime")) this->mqttReconnectionTime = config["mqttReconnectionTime"].as<unsigned int>();
+    if(config.containsKey("enable_user_and_pass")) this->enable_user_and_pass = config["enable_user_and_pass"].as<bool>();
+    if(config.containsKey("user_name")) this->user_name = config["user_name"].as<std::string>();
+    if(config.containsKey("user_password")) this->user_password = config["user_password"].as<std::string>();
+    if(config.containsKey("enable_certificates")) this->enable_certificates = config["enable_certificates"].as<bool>();
+    if(config.containsKey("ca_file_path")) this->ca_file_path = config["ca_file_path"].as<std::string>();
+    if(config.containsKey("client_cert_file_path")) this->client_cert_file_path = config["client_cert_file_path"].as<std::string>();
+    if(config.containsKey("client_key_file_path")) this->client_key_file_path = config["client_key_file_path"].as<std::string>();
+    if(config.containsKey("enable_websockets")) this->enable_websockets = config["enable_websockets"].as<bool>();
+    if(config.containsKey("websockets_path")) this->websockets_path = config["websockets_path"].as<std::string>();
+    if(config.containsKey("task_stack_size")) this->task_stack_size = config["task_stack_size"].as<int>();
+
+    if (config.containsKey("pub_topic")) {
+        if (config["pub_topic"].size() > 0)
+            for (unsigned int i = 0; i < config["pub_topic"].size(); i++)
+                this->pub_topic[i] = config["pub_topic"][i].as<std::string>();
+        else
+            this->pub_topic[0] = config["pub_topic"].as<std::string>();
+    }
+
+    if (config.containsKey("sub_topic")) {
+        if (config["sub_topic"].size() > 0)
+            for (unsigned int i = 0; i < config["sub_topic"].size(); i++){
+                this->sub_topic[i] = config["sub_topic"][i].as<std::string>();
+                this->addTopicSub(this->sub_topic[i].c_str());
+            }
+        else
+            this->sub_topic[0] = config["sub_topic"].as<std::string>();
+    }
+
+    uint32_t chipId = 0;
+    #ifdef ESP32
+    for(int i=0; i<17; i=i+8) {
+        chipId |= ((ESP.getEfuseMac() >> (40 - i)) & 0xff) << i;
+        }
+    // Serial.printf("ESP32 Chip model = %s Rev %d\n", ESP.getChipModel(), ESP.getChipRevision());
+    // Serial.printf("This chip has %d cores\n", ESP.getChipCores());
+    // Serial.print("Chip ID: "); Serial.println(chipId);
+    #elif defined(ESP8266)
+        chipId = ESP.getChipId();
+    #endif
+
+    this->base_topic_pub = "/" + id_name + "/" + std::to_string(chipId) + "/";
+}
 
 #ifdef ESP32
 void MQTTClient::setup() {
@@ -651,60 +754,4 @@ int MQTTClient::publish(const char *topic, const char *data, int len) {
 
 int MQTTClient::publish(const char *topic, const char *data) {
     return publish(topic, data, 0, 0, 0);
-}
-
-void MQTTClient::parseWebConfig(JsonObjectConst configObject) {
-
-    // JsonObject received:
-    // serializeJsonPretty(configObject, Serial);
-
-    // MQTTClient IWebConfig object:
-    this->enabled = configObject["enabled"] | false;
-    this->server = configObject["server"] | "server_address";
-    this->port = configObject["port"] | 8888;
-    this->id_name = configObject["id_name"] | "iotdevice";
-    this->reconnect_mqtt = configObject["reconnect_mqtt"] | false;
-    this->mqttMaxRetries = configObject["reconnect_retries"] | 10;
-    this->mqttReconnectionTime = configObject["reconnect_time_ms"] | 10000;
-    this->enable_user_and_pass = configObject["enable_user_and_pass"] | false;
-    this->user_name = configObject["user_name"] | "user_name";
-    this->user_password = configObject["user_password"] | "user_password";
-    this->enable_certificates = configObject["enable_certificates"] | false;
-    this->ca_file_path = configObject["ca_file"] | "certs/ca.crt";
-    this->client_cert_file_path = configObject["cert_file"] | "certs/client.crt";
-    this->client_key_file_path = configObject["key_file"] | "certs/client.key";
-    this->enable_websockets = configObject["enable_websockets"] | false;
-    this->websockets_path = configObject["websockets_path"] | "/";
-    this->task_stack_size = configObject["task_stack_size"] | (7*1024);
-
-    if (configObject["pub_topic"].size() > 0)
-        for (unsigned int i = 0; i < configObject["pub_topic"].size(); i++)
-            this->pub_topic[i] = configObject["pub_topic"][i].as<std::string>();
-    else
-        this->pub_topic[0] = configObject["pub_topic"].as<std::string>();
-
-    if (configObject["sub_topic"].size() > 0)
-        for (unsigned int i = 0; i < configObject["sub_topic"].size(); i++){
-            this->sub_topic[i] = configObject["sub_topic"][i].as<std::string>();
-            this->addTopicSub(this->sub_topic[i].c_str());
-        }
-    else
-        this->sub_topic[0] = configObject["sub_topic"].as<std::string>();
-
-
-    uint32_t chipId = 0;
-    #ifdef ESP32
-    for(int i=0; i<17; i=i+8) {
-        chipId |= ((ESP.getEfuseMac() >> (40 - i)) & 0xff) << i;
-        }
-    // Serial.printf("ESP32 Chip model = %s Rev %d\n", ESP.getChipModel(), ESP.getChipRevision());
-    // Serial.printf("This chip has %d cores\n", ESP.getChipCores());
-    // Serial.print("Chip ID: "); Serial.println(chipId);
-    #elif defined(ESP8266)
-        chipId = ESP.getChipId();
-    #endif
-
-    this->base_topic_pub = "/" + id_name + "/" + std::to_string(chipId) + "/";
-    // ESP_LOGE(TAG, "parseWebConfig MQTTClient enabled: %s every %dms and key: %s ", this->enabled? "true" : "false", this->metricsInterval, this->authKey.c_str());
-
 }
