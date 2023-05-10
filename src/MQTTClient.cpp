@@ -684,6 +684,7 @@ mqtt_client_topic_data MQTTClient::getTopicSub(std::string topicName) {
     for (mqtt_client_topic_data t : subTopics) {
         if (t.topic == topicName) return t;
     }
+    return mqtt_client_topic_data();
 }
 
 bool MQTTClient::getTopicIsSubscribed(std::string topicName) {
