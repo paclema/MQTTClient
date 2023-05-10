@@ -2,10 +2,10 @@
 // ---------------------
 //
 // This example shows how to use the MQTTClient to:
-// * connect to an MQTT brocker
-// * publish to a topic
-// * subscribe to a topic
-// * receive messages from subscribed topics
+// * Connect to an MQTT brocker
+// * Publish to a topic
+// * Subscribe to a topic
+// * Receive messages from subscribed topics
 // * Use an external class to handle the MQTTClient Callbacks 
 // * Use an external class to handle the MQTTClient client to publish and subscribe to topics
 //
@@ -114,7 +114,6 @@ void loop() {
   // Main Loop:
   if( mqttClient.connected() && (currentLoopMillis - previousPublishMillis > publishTime)) {
     previousPublishMillis = currentLoopMillis;
-
 
     mqttClient.publish(mainLoop_topic,"Message from main loop");
     Serial.printf("Message from main loop published to topic %s\n", mainLoop_topic);

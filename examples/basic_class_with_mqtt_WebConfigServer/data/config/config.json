@@ -1,7 +1,7 @@
 {
   "network": {
     "AP_SSID": "iotdevice",
-    "AP_password": "iotdevice",
+    "AP_password": "iotdevicepwd",
     "AP_channel": 6,
     "AP_SSID_hidden": false,
     "AP_max_connection": 4,
@@ -14,14 +14,14 @@
     "enable_NAT": false
   },
   "mqtt": {
-    "enabled": false,
-    "reconnect_mqtt": false,
-    "reconnect_retries": -1,
+    "enabled": true,
+    "reconnect_mqtt": true,
+    "reconnect_retries": 10,
     "reconnect_time_ms": 10000,
-    "server": "broker.ddns.net",
+    "server": "test.mosquitto.org",
     "port": 1883,
     "id_name": "iot-button",
-    "enable_user_and_pass": true,
+    "enable_user_and_pass": false,
     "user_name": "user_name",
     "user_password": "user_password",
     "enable_certificates": false,
@@ -46,8 +46,8 @@
     },
     "FTP": {
       "enabled": true,
-      "user": "paclema",
-      "password": "paclema"
+      "user": "ftpuser",
+      "password": "ftppwd"
     },
     "WebSockets": {
       "enabled": true,

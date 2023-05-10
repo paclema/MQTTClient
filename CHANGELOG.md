@@ -10,6 +10,7 @@ HEAD
 * Fix string debug message format
 * Remove conflicting defines for esp8266
 * Remove WebConfigServer from basic_class_with_mqtt and update example with latest version
+* Add basic_class_with_mqtt_WebConfigServer example
 
 v0.0.8 (2023-05-09)
 ------

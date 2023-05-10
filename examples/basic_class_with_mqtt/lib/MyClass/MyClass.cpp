@@ -10,8 +10,7 @@ void MyClass::loop(void){
     lastPublishMillis = currentMillis;
 
     myClass_mqttClient->publish(myClass_topic,"Message from MyClass loop");
-    Serial.println("Message from MyClass loop published");
-    Serial.printf("Message from main loop published to topic %s\n", myClass_topic);
+    Serial.printf("Message from MyClass loop published to topic %s\n", myClass_topic);
   }
 
 };
