@@ -1,63 +1,99 @@
+// basic_class_with_mqtt
+// ---------------------
+//
+// This example shows how to use the MQTTClient to:
+// * connect to an MQTT brocker
+// * publish to a topic
+// * subscribe to a topic
+// * receive messages from subscribed topics
+// * Use an external class to handle the MQTTClient Callbacks 
+// * Use an external class to handle the MQTTClient client to publish and subscribe to topics
+//
+
 #include <Arduino.h>
-
-
-// Device configurations
-unsigned long currentLoopMillis = 0;
-unsigned long previousPublishMillis = 0;
-unsigned long previousMainLoopMillis = 0;
-
-
-// WebConfigServer Configuration
-#include "WebConfigServer.h"
-WebConfigServer config;   // <- global configuration object
-
-#include <MQTTClient.h>
-MQTTClient *mqttClient;
 
 // MyClass
 #include "MyClass.h"
-// "MyClass" should be the same name as the object used into /data/config/config.json file
-// which represent the config objects configurable for this class.
-// This constructor can be clled specifying the name of the object into the config.json file
-// or the json object name can be provided later on, whenn adding the object into the config object
-// using config.addConfig(myClassObject, "MyClass");
-
-// MyClass *MyClass =  new MyClass("MyClass");
 MyClass myClassObject;
 
+#include <ArduinoJson.h>
+#include <MQTTClient.h>
+MQTTClient mqttClient;
 
-// Websocket functions to publish:
-String getLoopTime(){ return String(currentLoopMillis - previousMainLoopMillis);}
-String getRSSI(){ return String(WiFi.RSSI());}
-String getHeapFree(){ return String((float)GET_FREE_HEAP/1000);}
+#ifdef ESP32
+  #include <WiFi.h>
+#elif defined(ESP8266)
+  #include <ESP8266WiFi.h>
+#endif
 
-void callBeforeDeviceOff(){
-  Serial.println("Going to sleep!");
-};
+
+// Publish time variables:
+unsigned long currentLoopMillis = 0;
+unsigned long previousPublishMillis = 0;
+unsigned long publishTime = 2000; // milliseconds for publishing to MQTT broker from main loop
+const char* mainLoop_topic = "/topic/example/loop";
+
+
+// Replace with your network credentials
+const char* ssid = "WIFI_SSID";
+const char* password = "WIFI_PASSWORD";
 
 
 void setup() {
   Serial.begin(115200);
 
 
-  // Add MyClass object into WebConfigServer config object so MyClass will receive
-  // the new config changes from the config.json file whenever WebConfigServer detects
-  // or updates that file. In that case, WebConfigServer will call the MyClass::parseWebConfig 
-  // callback method, passing the new (nested, not the whole config.json) "MyClass" JsonObject 
-  // with the new configurations.
-  config.addConfig(myClassObject, "MyClass");
+  // Configure mqttClient with the necessary config with a json object:
+  StaticJsonDocument<384> doc;
+  JsonObject mqtt = doc.createNestedObject("mqtt");
+  mqtt["enabled"] = true;
+  mqtt["reconnect_mqtt"] = true;
+  mqtt["reconnect_retries"] = 10;
+  mqtt["reconnect_time_ms"] = 10000;
+  mqtt["server"] = "test.mosquitto.org";
+  mqtt["port"] = 1883;
+  mqtt["id_name"] = "iot-button";
+  mqtt["enable_user_and_pass"] = false;
+  mqtt["user_name"] = "userName";
+  mqtt["user_password"] = "userPassword";
+  mqtt["enable_certificates"] = false;
+  mqtt["ca_file"] = "/certs/ca.crt";
+  mqtt["cert_file"] = "/certs/cert.der";
+  mqtt["key_file"] = "/certs/private.der";
+  mqtt["enable_websockets"] = false;
+  mqtt["websockets_path"] = "/";
+  mqtt["pub_topic"][0] = "/iot-button/feed";
 
-  config.begin();
-  
-  mqttClient = config.getMQTTClient();
-  myClassObject.setMQTTClient(mqttClient);
-  myClassObject.setMQTTBaseTopic(config.getDeviceTopic());
+  JsonArray mqtt_sub_topic = mqtt.createNestedArray("sub_topic");
+  mqtt_sub_topic.add("/iot-button/topi1");
+  mqtt_sub_topic.add("/iot-button/topi2");
+  mqtt_sub_topic.add("/iot-button/topi3");
+  mqtt["task_stack_size"] = 7168;
 
-  config.addDashboardObject("heap_free", getHeapFree);
-  config.addDashboardObject("loop", getLoopTime);
-  config.addDashboardObject("RSSI", getRSSI);
+  serializeJsonPretty(doc, Serial);
+  mqttClient.setConfig(mqtt);
 
-  config.setPreSleepRoutine(callBeforeDeviceOff);
+  // And include mainLoop_topic to be subscribe:
+  mqttClient.addTopicSub(mainLoop_topic);
+
+  // Set MyClass MQTT client and its observer callbacks:
+  myClassObject.setMQTTClient(&mqttClient);
+
+  // Initialize Wifi connection:
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  Serial.print("Connecting to WiFi ..");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print('.');
+    delay(1000);
+  }
+  Serial.println(WiFi.localIP());
+
+  #ifdef ESP32
+    // Setup the mqtt client only once for ESP32
+    // For ESP8266, the mqtt client is setup  and reconnect in the loop()
+    mqttClient.setup();
+  #endif
 
   Serial.println("###  Looping time\n");
 }
@@ -66,18 +102,26 @@ void loop() {
 
   currentLoopMillis = millis();
 
-  config.loop();
+  #ifdef ESP8266
+    // The MQTTClient::loop() function must be called periodically to auto-reconnect
+    // to the broker if the connection get lost.
+    // This is not necessary using ESP32 since the FreeRTOS task runs in parallel
+    // and it will reconnect the client automatically.
+    mqttClient.loop();
+  #endif
 
-  myClassObject.loop();
 
   // Main Loop:
-  if( mqttClient->connected() && (currentLoopMillis - previousPublishMillis > 2000)) {
+  if( mqttClient.connected() && (currentLoopMillis - previousPublishMillis > publishTime)) {
     previousPublishMillis = currentLoopMillis;
 
-    String topic = config.getDeviceTopic() + "/test";
-    mqttClient->publish(topic.c_str(),"Message from main loop");
+
+    mqttClient.publish(mainLoop_topic,"Message from main loop");
+    Serial.printf("Message from main loop published to topic %s\n", mainLoop_topic);
 
   }
 
-previousMainLoopMillis = currentLoopMillis;
+  // MyClass Loop:
+  myClassObject.loop();
+
 }
