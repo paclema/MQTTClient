@@ -1,6 +1,11 @@
 MQTTClient: Changelog
 =====================
 
+HEAD
+----
+
+* Fix configuring Mqtt debug message
+
 v0.0.8 (2023-05-09)
 ------
 
