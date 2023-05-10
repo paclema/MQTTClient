@@ -53,5 +53,10 @@
       "base": "examples/basic_class_with_mqtt",
       "files": ["platformio.ini", "src/basic_class_with_mqtt.ino"]
     }
-  ]
+  ],
+  "export": {
+    "exclude": [
+        ".github"
+        ]
+    }
 }
