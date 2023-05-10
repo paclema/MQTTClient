@@ -617,7 +617,7 @@ void MQTTClient::reconnect() {
                 this->currentState = MQTT_CONNECT_FAILED;
                 Serial.printf("failed, rc=%d try again in %ds: %d/%s\n", 
                                 mqttClient.state(), mqttReconnectionTime/1000, mqttRetries, 
-                                mqttMaxRetries <= 0 ? "-" : String(mqttMaxRetries));
+                                mqttMaxRetries <= 0 ? "-" : String(mqttMaxRetries).c_Str());
             }
             previousMqttReconnectionMillis = millis();
             mqttRetries++;
