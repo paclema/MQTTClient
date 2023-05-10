@@ -1,8 +1,8 @@
 MQTTClient: Changelog
 =====================
 
-HEAD
-----
+v0.1.0 (2023-05-10)
+------
 
 * Fix configuring Mqtt debug message
 * Fix return for getTopicSub method when the topic was not found
