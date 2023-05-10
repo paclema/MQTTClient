@@ -1,8 +1,8 @@
 MQTTClient: Changelog
 =====================
 
-HEAD
-----
+v0.1.1 (2023-05-10)
+------
 
 * Fix c_Str typo
 
