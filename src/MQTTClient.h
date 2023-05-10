@@ -45,23 +45,24 @@
 
 
 #define MQTT_TOPIC_MAX_SIZE_LIST 10
-static const char *TAG = "MQTTClient";
-
 
 // Possible values for client.state()
 typedef int8_t MQTTClientState;
-#define MQTT_CONNECTED                		((MQTTClientState)   0)
-#define MQTT_CONNECT_BAD_PROTOCOL           ((MQTTClientState)   1)
-#define MQTT_CONNECT_BAD_CLIENT_ID          ((MQTTClientState)   2)
-#define MQTT_CONNECT_UNAVAILABLE            ((MQTTClientState)   3)
-#define MQTT_CONNECT_BAD_CREDENTIALS       	((MQTTClientState)   4)
-#define MQTT_CONNECT_UNAUTHORIZED       	((MQTTClientState)   5)
 
-#define MQTT_DISCONNECTED             		((MQTTClientState)  -1)
-#define MQTT_CONNECT_FAILED            		((MQTTClientState)  -2)
-#define MQTT_CONNECTION_LOST    			((MQTTClientState)  -3)
-#define MQTT_CONNECTION_TIMEOUT           	((MQTTClientState)  -4)
+#ifdef ESP32
+	static const char *TAG = "MQTTClient";
+	#define MQTT_CONNECTED                		((MQTTClientState)   0)
+	#define MQTT_CONNECT_BAD_PROTOCOL           ((MQTTClientState)   1)
+	#define MQTT_CONNECT_BAD_CLIENT_ID          ((MQTTClientState)   2)
+	#define MQTT_CONNECT_UNAVAILABLE            ((MQTTClientState)   3)
+	#define MQTT_CONNECT_BAD_CREDENTIALS       	((MQTTClientState)   4)
+	#define MQTT_CONNECT_UNAUTHORIZED       	((MQTTClientState)   5)
 
+	#define MQTT_DISCONNECTED             		((MQTTClientState)  -1)
+	#define MQTT_CONNECT_FAILED            		((MQTTClientState)  -2)
+	#define MQTT_CONNECTION_LOST    			((MQTTClientState)  -3)
+	#define MQTT_CONNECTION_TIMEOUT           	((MQTTClientState)  -4)
+#endif
 
 class MQTTClient : 
 	private MQTTClientCallback {

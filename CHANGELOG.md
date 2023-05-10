@@ -8,6 +8,7 @@ HEAD
 * Fix return for getTopicSub method when the topic was not found
 * Change mqtt_client_event_data.data_len to size_t
 * Fix string debug message format
+* Remove conflicting defines for esp8266
 
 v0.0.8 (2023-05-09)
 ------
