@@ -335,7 +335,7 @@ void MQTTClient::eventHandler(void *handler_args, esp_event_base_t base, int32_t
                 mqtt_client_event_data *data = new mqtt_client_event_data{
                     .topic = std::string(event->topic, event->topic_len),
                     .data = event->data,
-                    .data_len = event->data_len,
+                    .data_len = static_cast<size_t>(event->data_len),
                 };
                 thisClient->onDataReceived(thisClient, data);
                 delete data;

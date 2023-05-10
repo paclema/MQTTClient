@@ -7,7 +7,7 @@
 struct mqtt_client_event_data {
     std::string topic;
     const char* data;
-    int data_len;
+    size_t data_len;
 };
 
 enum mqtt_client_topic_status {
