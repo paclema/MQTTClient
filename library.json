@@ -52,6 +52,11 @@
       "name": "Basic_Class_with_MQTTClient",
       "base": "examples/basic_class_with_mqtt",
       "files": ["platformio.ini", "src/basic_class_with_mqtt.ino"]
+    },
+    {
+      "name": "Basic_Class_with_MQTTClient_WebConfigServer",
+      "base": "examples/basic_class_with_mqtt_WebConfigServer",
+      "files": ["platformio.ini", "src/basic_class_with_mqtt_WebConfigServer.ino"]
     }
   ],
   "export": {

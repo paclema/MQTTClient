@@ -5,6 +5,7 @@ HEAD
 ----
 
 * Include examples information into README
+* Add basic_class_with_mqtt_WebConfigServer to PlatformIO examples
 
 v0.1.1 (2023-05-10)
 ------
