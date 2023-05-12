@@ -1,6 +1,11 @@
 MQTTClient: Changelog
 =====================
 
+HEAD
+----
+
+* Include examples information into README
+
 v0.1.1 (2023-05-10)
 ------
 

@@ -4,7 +4,7 @@
 [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?color=yellow)](https://www.paypal.com/donate/?business=8PXZ598XDGAS2&no_recurring=0&currency_code=EUR&source=url)
 
 
-MQTT Client library that wrappers ESP-IDF mqtt client component into a C++ class for ESP32 and PubSubClient for ESP8266.
+MQTT client library that wrappers ESP-IDF mqtt client component into a C++ class for ESP32 and PubSubClient for ESP8266.
 
 ## Features:
 * Username/Password authentication
@@ -18,7 +18,8 @@ MQTT Client library that wrappers ESP-IDF mqtt client component into a C++ class
 
 
 ## Library configuration:
-This library requires [WebConfigServer](https://github.com/paclema/WebConfigServer) library for configuration. The next configurations can be added into the configuration file `config/config.json`  stored in the littlefs partition:
+
+To configure the MQTTClient client, the following parameters can be added into an ArduinoJson document:
 
 ```json
 {
@@ -51,3 +52,8 @@ This library requires [WebConfigServer](https://github.com/paclema/WebConfigServ
   }
 }
 ```
+## Examples:
+
+Check the basic example [basic_class_with_mqtt](examples/basic_class_with_mqtt/) to see how to do it and also to use the MQTTClient within your own class.
+
+On the other hand, It is recommended to use MQTTClient along with [WebConfigServer](https://github.com/paclema/WebConfigServer) library to easily configure the MQTTClient configurations adding them to the littlefs _data_ partition into the WebConfigServer configuration file `config/config.json`. WebConfigServer already has instanced an MQTTClient object and you can also use it to publish or subscribe to MQTT topics. Check the example [basic_class_with_mqtt_WebConfigServer](examples/basic_class_with_mqtt_WebConfigServer) for more details.
