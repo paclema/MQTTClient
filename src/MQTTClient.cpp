@@ -597,10 +597,11 @@ void MQTTClient::reconnect() {
                 std::string topic_connected_pub = base_topic_pub + "connected";
                 std::string msg_connected ="true";
                 mqttClient.publish(topic_connected_pub.c_str(), msg_connected.c_str(), true);
+
                 // ... and resubscribe
-                std::string base_topic_sub = base_topic_pub + "#";
-                // mqttClient.subscribe(base_topic_sub.c_str());
-                this->addTopicSub(base_topic_sub.c_str());
+                // std::string base_topic_sub = base_topic_pub + "#";
+                // // mqttClient.subscribe(base_topic_sub.c_str());
+                // this->addTopicSub(base_topic_sub.c_str());
 
                 for (mqtt_client_topic_data& t : this->subTopics) {
                     t.subs_msg_id = this->topicId;

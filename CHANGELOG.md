@@ -9,6 +9,7 @@ HEAD
 * Fix issues #2 and #9. Only add topic to subscription topic list if it does not exist yet
 * Add MQTTClientCallback::onTopicUpdate to inform for topic subscription new change updates
 * Include topic subscription status feedback for esp8266 on topic subscription result
+* Remove base_topic_pub auto subscription for esp8266 target
 
 v0.1.1 (2023-05-10)
 ------
