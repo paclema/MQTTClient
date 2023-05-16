@@ -653,27 +653,42 @@ void MQTTClient::setMQTTClientId(std::string client_id) {
 }
 
 void MQTTClient::addTopicSub(const char* topic, int qos) {
-    mqtt_client_topic_data newTopic = {
-        .topic = topic,
-        .qos = qos,
-        .subs_msg_id = -1,
-        .subs_status = ANY
-    };
 
-    if (currentState == MQTT_CONNECTED) {
-        #ifdef ESP32
-            newTopic.subs_msg_id = esp_mqtt_client_subscribe(client, newTopic.topic.c_str(), newTopic.qos);
-        #elif defined(ESP8266)
-            newTopic.subs_msg_id = this->topicId;
-            this->topicId++;
-            if(mqttClient.subscribe(newTopic.topic.c_str(), newTopic.qos)) 
-                newTopic.subs_status = SUBSCRIBED;
-            else 
-                newTopic.subs_status = ERROR;
-        #endif
-    };
+    // Search first if the topic is already in the subscription topic list
+    auto result = std::find_if(subTopics.begin(), subTopics.end(),
+                                [topic](const mqtt_client_topic_data & t) {   return t.topic == topic; } );
+    if(result != subTopics.end()){
+        ESP_LOGW(TAG, "Topic %s already in the subTopics list with qos %d and status: %d", topic, result->qos, result->subs_status); 
+        return;
+    } else {
+        ESP_LOGI(TAG,"Adding topic %s to the subTopics list\n", topic);
 
-    subTopics.push_back(newTopic);
+        mqtt_client_topic_data newTopic = {
+            .topic = topic,
+            .qos = qos,
+            .subs_msg_id = -1,
+            .subs_status = ANY
+        };
+
+        // Add the new topic to the subscription topic list
+        subTopics.push_back(newTopic);
+
+        // If the client is already connected, subscribe to the new topic
+        if (currentState == MQTT_CONNECTED) {
+            #ifdef ESP32
+                newTopic.subs_msg_id = esp_mqtt_client_subscribe(client, newTopic.topic.c_str(), newTopic.qos);
+            #elif defined(ESP8266)
+                newTopic.subs_msg_id = this->topicId;
+                this->topicId++;
+                if(mqttClient.subscribe(newTopic.topic.c_str(), newTopic.qos)) 
+                    newTopic.subs_status = SUBSCRIBED;
+                else 
+                    newTopic.subs_status = ERROR;
+            #endif
+        };
+
+    }
+
 }
 
 void MQTTClient::addTopicSub(const char* topic){

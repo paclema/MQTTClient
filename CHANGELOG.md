@@ -6,6 +6,7 @@ HEAD
 
 * Include examples information into README
 * Add basic_class_with_mqtt_WebConfigServer to PlatformIO examples
+* Fix issues #2 and #9. Only add topic to subscription topic list if it does not exist yet
 
 v0.1.1 (2023-05-10)
 ------
