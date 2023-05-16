@@ -48,9 +48,7 @@
 
 // Possible values for client.state()
 typedef int8_t MQTTClientState;
-
 #ifdef ESP32
-	static const char *TAG = "MQTTClient";
 	#define MQTT_CONNECTED                		((MQTTClientState)   0)
 	#define MQTT_CONNECT_BAD_PROTOCOL           ((MQTTClientState)   1)
 	#define MQTT_CONNECT_BAD_CLIENT_ID          ((MQTTClientState)   2)
@@ -62,6 +60,13 @@ typedef int8_t MQTTClientState;
 	#define MQTT_CONNECT_FAILED            		((MQTTClientState)  -2)
 	#define MQTT_CONNECTION_LOST    			((MQTTClientState)  -3)
 	#define MQTT_CONNECTION_TIMEOUT           	((MQTTClientState)  -4)
+#endif
+
+static const char *TAG = "MQTTClient";
+
+// Logs
+#ifdef ESP8266
+  #include <ESP8266Log.h>
 #endif
 
 class MQTTClient : 
