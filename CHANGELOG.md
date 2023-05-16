@@ -10,6 +10,7 @@ HEAD
 * Add MQTTClientCallback::onTopicUpdate to inform for topic subscription new change updates
 * Include topic subscription status feedback for esp8266 on topic subscription result
 * Remove base_topic_pub auto subscription for esp8266 target
+* Fix client callback instance for esp8266 onTopicUpdate and onSubscribed calls
 
 v0.1.1 (2023-05-10)
 ------

@@ -610,7 +610,7 @@ void MQTTClient::reconnect() {
                         t.subs_status = SUBSCRIBED;
                         this->onSubscribed(this, &t);
                     } else t.subs_status = ERROR;
-                    this->onTopicUpdate(thisClient, &t);
+                    this->onTopicUpdate(this, &t);
                     Serial.printf("Topic[%d]: %s status to %d\n", t.subs_msg_id, t.topic.c_str(), t.subs_status);
                 }
 
@@ -687,11 +687,11 @@ void MQTTClient::addTopicSub(const char* topic, int qos) {
                 this->topicId++;
                 if(mqttClient.subscribe(newTopic.topic.c_str(), newTopic.qos)) {
                     newTopic.subs_status = SUBSCRIBED;
-                    this->onSubscribed(thisClient, &newTopic);
+                    this->onSubscribed(this, &newTopic);
                 }
                 else 
                     newTopic.subs_status = ERROR;
-                    this->onTopicUpdate(thisClient, &newTopic);
+                this->onTopicUpdate(this, &newTopic);
             #endif
         };
 
