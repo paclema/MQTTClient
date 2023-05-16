@@ -603,9 +603,10 @@ void MQTTClient::reconnect() {
                 // // mqttClient.subscribe(base_topic_sub.c_str());
                 // this->addTopicSub(base_topic_sub.c_str());
 
+                this->lastTopicId = 0;
                 for (mqtt_client_topic_data& t : this->subTopics) {
-                    t.subs_msg_id = this->topicId;
-                    this->topicId++;
+                    t.subs_msg_id = this->lastTopicId;
+                    this->lastTopicId++;
                     if(mqttClient.subscribe(t.topic.c_str(), t.qos)) {
                         t.subs_status = SUBSCRIBED;
                         this->onSubscribed(this, &t);
@@ -683,8 +684,8 @@ void MQTTClient::addTopicSub(const char* topic, int qos) {
             #ifdef ESP32
                 newTopic.subs_msg_id = esp_mqtt_client_subscribe(client, newTopic.topic.c_str(), newTopic.qos);
             #elif defined(ESP8266)
-                newTopic.subs_msg_id = this->topicId;
-                this->topicId++;
+                newTopic.subs_msg_id = this->lastTopicId;
+                this->lastTopicId++;
                 if(mqttClient.subscribe(newTopic.topic.c_str(), newTopic.qos)) {
                     newTopic.subs_status = SUBSCRIBED;
                     this->onSubscribed(this, &newTopic);

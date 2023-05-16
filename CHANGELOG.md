@@ -12,6 +12,7 @@ HEAD
 * Remove base_topic_pub auto subscription for esp8266 target
 * Fix client callback instance for esp8266 onTopicUpdate and onSubscribed calls
 * Add ESP8266Log.h to keep ESP32 logs compability
+* Initialize lastTopicId on mqtt connect for esp8266
 
 v0.1.1 (2023-05-10)
 ------
