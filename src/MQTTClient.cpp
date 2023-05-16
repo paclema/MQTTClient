@@ -684,10 +684,13 @@ void MQTTClient::addTopicSub(const char* topic, int qos) {
             #elif defined(ESP8266)
                 newTopic.subs_msg_id = this->topicId;
                 this->topicId++;
-                if(mqttClient.subscribe(newTopic.topic.c_str(), newTopic.qos)) 
+                if(mqttClient.subscribe(newTopic.topic.c_str(), newTopic.qos)) {
                     newTopic.subs_status = SUBSCRIBED;
+                    this->onSubscribed(thisClient, &newTopic);
+                }
                 else 
                     newTopic.subs_status = ERROR;
+                    this->onTopicUpdate(thisClient, &newTopic);
             #endif
         };
 
