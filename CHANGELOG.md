@@ -1,6 +1,11 @@
 MQTTClient: Changelog
 =====================
 
+HEAD
+----
+
+* Bump MQTTClient on examples to v0.2.0
+
 v0.2.0 (2023-05-16)
 ------
 
