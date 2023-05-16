@@ -5,6 +5,7 @@ HEAD
 ----
 
 * Bump MQTTClient on examples to v0.2.0
+* Removed unnecessary break line in log message
 
 v0.2.0 (2023-05-16)
 ------

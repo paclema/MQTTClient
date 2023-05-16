@@ -667,7 +667,7 @@ void MQTTClient::addTopicSub(const char* topic, int qos) {
         ESP_LOGW(TAG, "Topic %s already in the subTopics list with qos %d and status: %d", topic, result->qos, result->subs_status); 
         return;
     } else {
-        ESP_LOGI(TAG,"Adding topic %s to the subTopics list\n", topic);
+        ESP_LOGI(TAG,"Adding topic %s to the subTopics list", topic);
 
         mqtt_client_topic_data newTopic = {
             .topic = topic,
