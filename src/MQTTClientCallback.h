@@ -31,6 +31,7 @@ public:
     virtual void onConnected(MQTTClient* client) {};
     virtual void onDataReceived(MQTTClient* client, const mqtt_client_event_data *data) {};
     virtual void onSubscribed(MQTTClient* client, const mqtt_client_topic_data *topic) {};
+    virtual void onTopicUpdate(MQTTClient* client, const mqtt_client_topic_data *topic) {};
 };
 
 #endif // MQTTClientCallback_H

@@ -126,6 +126,12 @@ private:
 		}
 	}
 
+	virtual void onTopicUpdate(MQTTClient* client, const mqtt_client_topic_data *topic) {
+		for (MQTTClientCallback* callback : callbacks) {
+			callback->onTopicUpdate(client, topic);
+		}
+	}
+
 	#ifdef ESP32
 		esp_mqtt_client_handle_t client;
 

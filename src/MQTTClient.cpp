@@ -246,6 +246,7 @@ void MQTTClient::eventHandler(void *handler_args, esp_event_base_t base, int32_t
             t.subs_msg_id = esp_mqtt_client_subscribe(client, t.topic.c_str(), t.qos);
             t.subs_status = SUBSCRIPTION_REQUESTED;
             ESP_LOGD(TAG, "Topic[%d]: %s status to %d", t.subs_msg_id, t.topic.c_str(), t.subs_status);
+            thisClient->onTopicUpdate(thisClient, &t);
         }
 
         thisClient->onConnected(thisClient);
@@ -263,6 +264,7 @@ void MQTTClient::eventHandler(void *handler_args, esp_event_base_t base, int32_t
                 t.subs_status = SUBSCRIBED;
                 ESP_LOGD(TAG, "Topic[%d]: %s status to %d", t.subs_msg_id, t.topic.c_str(), t.subs_status);
                 thisClient->onSubscribed(thisClient, &t);
+                thisClient->onTopicUpdate(thisClient, &t);
                 break;
             }
         }
@@ -273,6 +275,7 @@ void MQTTClient::eventHandler(void *handler_args, esp_event_base_t base, int32_t
             if(event->msg_id == t.subs_msg_id){
                 t.subs_status = UNSUBSCRIBED;
                 ESP_LOGD(TAG, "Topic[%d]: %s status to %d", t.subs_msg_id, t.topic.c_str(), t.subs_status);
+                thisClient->onTopicUpdate(thisClient, &t);
                 break;
             }
         }
@@ -606,6 +609,7 @@ void MQTTClient::reconnect() {
                         t.subs_status = SUBSCRIBED;
                         this->onSubscribed(this, &t);
                     } else t.subs_status = ERROR;
+                    this->onTopicUpdate(thisClient, &t);
                     Serial.printf("Topic[%d]: %s status to %d\n", t.subs_msg_id, t.topic.c_str(), t.subs_status);
                 }
 
