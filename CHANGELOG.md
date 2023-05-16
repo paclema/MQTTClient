@@ -1,8 +1,8 @@
 MQTTClient: Changelog
 =====================
 
-HEAD
-----
+v0.2.0 (2023-05-16)
+------
 
 * Include examples information into README
 * Add basic_class_with_mqtt_WebConfigServer to PlatformIO examples
