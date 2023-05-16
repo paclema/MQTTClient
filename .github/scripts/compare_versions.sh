@@ -10,8 +10,8 @@ function compare_versions {
   IFS='.' read -r -a v1_arr <<< "$v1"
   IFS='.' read -r -a v2_arr <<< "$v2"
 
-  # Check if it is the first version and last version is empty
-  if [[ -z "$LAST_VERSION" ]]; then
+  # Check when this is the first version and last version is empty
+  if [[ -z "$v2" ]]; then
     echo "New version: v$1   -   Latest version: empty"
     exit 0
   fi
