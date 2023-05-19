@@ -85,6 +85,7 @@ public:
 	bool isEnabled(void) { return enabled;}
 	bool useWebsockets(void) { return enable_websockets; }
 	void setMQTTClientId(std::string client_id);
+	std::string getMQTTClientId(void){ return id_name; }
 
 	void addTopicSub(const char* topic, int qos);
 	void addTopicSub(const char* topic);
