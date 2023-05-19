@@ -676,25 +676,37 @@ void MQTTClient::addTopicSub(const char* topic, int qos) {
             .subs_status = ANY
         };
 
-        // Add the new topic to the subscription topic list
-        subTopics.push_back(newTopic);
 
         // If the client is already connected, subscribe to the new topic
         if (currentState == MQTT_CONNECTED) {
             #ifdef ESP32
                 newTopic.subs_msg_id = esp_mqtt_client_subscribe(client, newTopic.topic.c_str(), newTopic.qos);
+                if(newTopic.subs_msg_id > 0) {
+                    newTopic.subs_status = SUBSCRIPTION_REQUESTED;
+                }
+                else 
+                    newTopic.subs_status = ERROR;            
             #elif defined(ESP8266)
                 newTopic.subs_msg_id = this->lastTopicId;
                 this->lastTopicId++;
                 if(mqttClient.subscribe(newTopic.topic.c_str(), newTopic.qos)) {
                     newTopic.subs_status = SUBSCRIBED;
-                    this->onSubscribed(this, &newTopic);
                 }
                 else 
                     newTopic.subs_status = ERROR;
-                this->onTopicUpdate(this, &newTopic);
             #endif
-        };
+        } else {
+            ESP_LOGW(TAG, "MQTT client not connected, topic %s will be subscribed when connected", topic);
+        }
+
+        // Add the new topic to the subscription topic list
+        subTopics.push_back(newTopic);
+
+        // Notify Observers for topic updates in case there is any
+        if (newTopic.subs_status != ANY){
+            this->onTopicUpdate(this, &newTopic);
+            if (newTopic.subs_status == SUBSCRIBED) this->onSubscribed(this, &newTopic);
+        }
 
     }
 
@@ -728,7 +740,7 @@ int MQTTClient::publish(const char *topic, const char *data, int len, int qos, i
         // mqtt client return -1 if the message was not published successfully,
         // or the message id number if the message was published successfully.
         // Also for QoS 0 messages, the return will be 0.
-        ESP_LOGI(TAG, "MQTT TX -> topic: %s, message: %s", topic, data);
+        ESP_LOGV(TAG, "MQTT TX -> topic: %s, message: %s", topic, data);
         return esp_mqtt_client_publish(client, topic, data, len, qos, retain);
 	#elif defined(ESP8266)
         // PubSubClient publish return true if the message was published successfully, 

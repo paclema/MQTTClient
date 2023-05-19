@@ -8,6 +8,7 @@ HEAD
 * Removed unnecessary break line in log message
 * Include ESP_LOGE, ESP_LOGD and ESP_LOGV definitions for esp8266 logging
 * Add MQTTClient::getMQTTClientId method
+* Fix topic subscription information during MQTTClient::addTopicSub when the client is connected
 
 v0.2.0 (2023-05-16)
 ------
