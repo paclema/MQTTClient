@@ -1,8 +1,8 @@
 MQTTClient: Changelog
 =====================
 
-HEAD
-----
+v0.3.0 (2023-05-19)
+------
 
 * Bump MQTTClient on examples to v0.2.0
 * Removed unnecessary break line in log message
