@@ -151,24 +151,24 @@ void MQTTClient::setup(void) {
 
     broker_url = url_prefix + server + ":" + std::to_string(port) + url_sufix;
     ESP_LOGI(TAG, "Connecting to broker: %s", broker_url.c_str());
-    
-    const esp_mqtt_client_config_t mqtt_cfg = {
-        .uri = broker_url.c_str(),
 
-        .set_null_client_id = false,
-        .client_id = id_name.c_str(),
+    // ESP-IDF previous to v5.5
+    // const esp_mqtt_client_config_t mqtt_cfg = {
+    //     .uri = broker_url.c_str(),
 
-        .username = this->enable_user_and_pass ? user_name.c_str() : NULL,
-        .password = this->enable_user_and_pass ? user_password.c_str() : NULL,
+    //     .set_null_client_id = false,
+    //     .client_id = id_name.c_str(),
 
-        .task_stack = task_stack_size,
+    //     .username = this->enable_user_and_pass ? user_name.c_str() : NULL,
+    //     .password = this->enable_user_and_pass ? user_password.c_str() : NULL,
 
-        .client_cert_pem = this->enable_certificates ? (const char *)client_cert_pem : NULL,
-        .client_key_pem = this->enable_certificates ? (const char *)client_key_pem : NULL,
-        .use_global_ca_store = this->enable_certificates
+    //     .task_stack = task_stack_size,
 
-    };
+    //     .client_cert_pem = this->enable_certificates ? (const char *)client_cert_pem : NULL,
+    //     .client_key_pem = this->enable_certificates ? (const char *)client_key_pem : NULL,
+    //     .use_global_ca_store = this->enable_certificates
 
+    // };
 
     // Full configuration example:
     //  const esp_mqtt_client_config_t mqtt_cfg = {
@@ -193,6 +193,18 @@ void MQTTClient::setup(void) {
     //     .path = (const char *)"api/controldevice",
     // };
     
+    
+    // ESP-IDF v5.5
+    esp_mqtt_client_config_t mqtt_cfg = {};
+    mqtt_cfg.broker.address.uri = broker_url.c_str();
+    mqtt_cfg.credentials_t.set_null_client_id = false;
+    mqtt_cfg.verification_t.use_global_ca_store = this->enable_certificates;
+    mqtt_cfg.credentials_t.client_id = id_name.c_str();
+    mqtt_cfg.credentials_t.authentication_t.username = this->enable_user_and_pass ? user_name.c_str() : NULL;
+    mqtt_cfg.credentials_t.authentication_t.password = this->enable_user_and_pass ? user_password.c_str() : NULL;
+    mqtt_cfg.credentials_t.authentication_t.certificate = this->enable_certificates ? (const char *)client_cert_pem : NULL;
+    mqtt_cfg.credentials_t.authentication_t.client_key_pem = this->enable_certificates ? (const char *)client_key_pem : NULL;
+    mqtt_cfg.task_t.stack_size = task_stack_size;
 
     ESP_LOGW(TAG, "[APP] Free memory: %d bytes", esp_get_free_heap_size());
     client = esp_mqtt_client_init(&mqtt_cfg);
