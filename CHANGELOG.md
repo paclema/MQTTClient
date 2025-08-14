@@ -1,8 +1,8 @@
 MQTTClient: Changelog
 =====================
 
-HEAD
-----
+v1.0.0 (2025-08-14)
+------
 
 * Replace esp_mqtt_client_config_t configs to use ESP-IDF v5.5 definition
 
