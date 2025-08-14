@@ -1,6 +1,11 @@
 MQTTClient: Changelog
 =====================
 
+HEAD
+----
+
+* Fix release workflow replacing checkout to v4 and adding default GITHUB_TOKEN
+
 v1.0.0 (2025-08-14)
 ------
 

@@ -15,7 +15,7 @@ jobs:
       last_version: ${{ steps.check-latest-version.outputs.last_version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Check latest version
         id: check-latest-version
@@ -34,7 +34,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -45,7 +45,7 @@ jobs:
   release:
     name: Create release
     needs: [update-lib-files, check-tag-version]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
@@ -56,7 +56,7 @@ jobs:
           echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
           
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Force Fetch new tag
         run: |
@@ -86,7 +86,7 @@ jobs:
           bodyFile: ${{ steps.body.outputs.filename }}
           name: ${{ steps.body.outputs.package_name }} ${{ steps.init.outputs.tag }}
           artifacts: ${{ steps.arduino.outputs.filename }}
-          # token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   publish-platformio:
     name: Publish library to PlatformIO Registry
@@ -94,10 +94,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: 3.x
 
