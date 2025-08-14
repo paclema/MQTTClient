@@ -1,6 +1,11 @@
 MQTTClient: Changelog
 =====================
 
+HEAD
+----
+
+* Fix and refactor MQTT client configuration to align with ESP-IDF v5.5+ standards
+
 v1.0.1 (2025-08-14)
 ------
 
