@@ -277,6 +277,7 @@ void MQTTClient::eventHandler(void *handler_args, esp_event_base_t base, int32_t
     case MQTT_EVENT_DISCONNECTED:
         ESP_LOGW(TAG, "MQTT_EVENT_DISCONNECTED");
         thisClient->currentState = MQTT_DISCONNECTED;
+        thisClient->onDisconnected(thisClient);
         break;
 
     case MQTT_EVENT_SUBSCRIBED:

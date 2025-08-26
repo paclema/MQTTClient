@@ -120,6 +120,12 @@ private:
 		}
 	}
 
+	virtual void onDisconnected(MQTTClient* client) {
+		for (MQTTClientCallback* callback : callbacks) {
+			callback->onDisconnected(client);
+		}
+	}
+
 	virtual void onDataReceived(MQTTClient* client, const mqtt_client_event_data *data) {
 		for (MQTTClientCallback* callback : callbacks) {
 			callback->onDataReceived(client, data);

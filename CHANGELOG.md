@@ -1,6 +1,11 @@
 MQTTClient: Changelog
 =====================
 
+HEAD
+----
+
+* Add onDisconnected callback
+
 v1.0.2 (2025-08-14)
 ------
 
