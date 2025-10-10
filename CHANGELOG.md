@@ -1,6 +1,11 @@
 MQTTClient: Changelog
 =====================
 
+HEAD
+----
+
+* Fix compare_versions.sh script to handle empty and zero versions correctly
+
 v1.1.0 (2025-08-26)
 ------
 
